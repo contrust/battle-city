@@ -1,4 +1,5 @@
 import pygame, sys
+from menu import main_menu
 
 clock = pygame.time.Clock()  # set up the clock
 
@@ -6,7 +7,7 @@ from pygame.locals import *
 
 pygame.init()  # initialize pygame
 
-pygame.display.set_caption('Battle City')  # set the window name
+pygame.display.set_caption('Battle City')  # set the windo  w name
 
 WINDOW_SIZE = (600, 480)
 
@@ -88,6 +89,7 @@ def move(rect, movement, tiles):
                     collision_types['top'] = True
     return rect, collision_types
 
+main_menu()
 
 while True:
     display.fill((0, 0, 0))
@@ -142,6 +144,11 @@ while True:
                 moving_up = True
             if event.key == K_DOWN:
                 moving_down = True
+            if event.key == K_ESCAPE:
+                main_menu()
+                player_rect.x = 50
+                player_rect.y = 50
+                player_image = player_image_up
         if event.type == KEYUP:
             if event.key == K_RIGHT:
                 moving_right = False
