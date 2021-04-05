@@ -8,21 +8,17 @@ pygame.init()  # initialize pygame
 
 pygame.display.set_caption('Battle City')  # set the window name
 
-WINDOW_SIZE = (600, 400)
+WINDOW_SIZE = (600, 480)
 
 screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)  # initialize the window
 
-display = pygame.Surface((320, 200))
+display = pygame.Surface((320, 240))
 
-sprites = pygame.image.load('sprite.png')
+sprites = pygame.image.load('sprite.png').convert_alpha()
 player_image_up = sprites.subsurface((0, 0, 16, 16))
-player_image_up.set_colorkey((0, 0, 0))
 player_image_down = sprites.subsurface((64, 0, 16, 16))
-player_image_down.set_colorkey((0, 0, 0))
 player_image_right = sprites.subsurface((96, 0, 16, 16))
-player_image_right.set_colorkey((0, 0, 0))
 player_image_left = sprites.subsurface((32, 0, 16, 16))
-player_image_left.set_colorkey((0, 0, 0))
 player_image = player_image_up
 
 
@@ -35,12 +31,17 @@ grass_image = sprites.subsurface((272, 32, 16, 16))
 TILE_SIZE = grass_image.get_width()
 brick_image = sprites.subsurface((256, 0, 16, 16))
 
-game_map = [['2', '2', '0', '0', '0', '0'],
-            ['0', '0', '0', '0', '0', '0'],
-            ['0', '0', '0', '0', '0', '1'],
-            ['1', '1', '0', '0', '1', '1'],
-            ['2', '2', '2', '0', '2', '2'],
-            ['2', '2', '2', '2', '2', '2']]
+game_map = [['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'],
+            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', '0', '2', '1', '2'],
+            ['2', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', '0', '0', '1', '2'],
+            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '2', '0', '2', '2', '2'],
+            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '0', '0', '0', '0', '2'],
+            ['2', '2', '2', '2', '2', '2', '2', '0', '0', '0', '2', '2', '2', '2', '0', '0', '0', '0', '2', '2'],
+            ['2', '0', '0', '0', '1', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
+            ['2', '2', '2', '0', '0', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
+            ['2', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
+            ['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'],
+            ]
 
 player_y_momentum = 0
 
@@ -54,42 +55,44 @@ test_rect = pygame.Rect(100, 100, 100, 50)
 def collision_test(rect, tiles):
     hit_list = []
     for tile in tiles:
-        if rect.colliderect(tile):
+        if rect.colliderect(tile[0]):
             hit_list.append(tile)
     return hit_list
 
 
 def move(rect, movement, tiles):
-    print(movement)
-    print(rect.x, rect.y)
     collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
     if movement[0] != 0:
         if 0 <= rect.x + movement[0] <= display.get_width() - player_image.get_width():
             rect.x += movement[0]
         hit_list = collision_test(rect, tiles)
         for tile in hit_list:
-            if movement[0] > 0:
-                rect.right = tile.left
-                collision_types['right'] = True
-            else:
-                rect.left = tile.right
-                collision_types['left'] = True
+            if tile[1] != '1':
+                if movement[0] > 0:
+                    rect.right = tile[0].left
+                    collision_types['right'] = True
+                else:
+                    rect.left = tile[0].right
+                    collision_types['left'] = True
     else:
         if 0 <= rect.y + movement[1] <= display.get_height() - player_image.get_height():
             rect.y += movement[1]
         hit_list = collision_test(rect, tiles)
         for tile in hit_list:
-            if movement[1] > 0:
-                rect.bottom = tile.top
-                collision_types['bottom'] = True
-            else:
-                rect.top = tile.bottom
-                collision_types['top'] = True
+            if tile[1] != '1':
+                if movement[1] > 0:
+                    rect.bottom = tile[0].top
+                    collision_types['bottom'] = True
+                else:
+                    rect.top = tile[0].bottom
+                    collision_types['top'] = True
     return rect, collision_types
 
 
 while True:
     display.fill((0, 0, 0))
+
+    display.blit(player_image, (player_rect.x, player_rect.y))
 
     tile_rects = []
     y = 0
@@ -101,7 +104,7 @@ while True:
             if tile == '2':
                 display.blit(brick_image, (x * TILE_SIZE, y * TILE_SIZE))
             if tile != '0':
-                tile_rects.append(pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+                tile_rects.append((pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), tile))
             x += 1
         y += 1
 
@@ -120,7 +123,6 @@ while True:
         player_image = player_image_down
 
     player_rect, collisions = move(player_rect, player_movement, tile_rects)
-    display.blit(player_image, (player_rect.x, player_rect.y))
 
     if player_rect.colliderect(test_rect):
         pygame.draw.rect(screen, (255, 0, 0), test_rect)
