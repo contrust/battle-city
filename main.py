@@ -16,12 +16,9 @@ screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)  # initialize the window
 display = pygame.Surface((320, 240))
 
 sprites = pygame.image.load('sprite.png').convert_alpha()
-player_image_up = sprites.subsurface((0, 0, 16, 16))
-player_image_down = sprites.subsurface((64, 0, 16, 16))
-player_image_right = sprites.subsurface((96, 0, 16, 16))
-player_image_left = sprites.subsurface((32, 0, 16, 16))
-player_image = player_image_up
+bullet_image = sprites.subsurface((320, 96, 16, 16))
 
+(DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 
 moving_right = False
 moving_left = False
@@ -44,13 +41,7 @@ game_map = [['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2
             ['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'],
             ]
 
-player_y_momentum = 0
-
-player_rect = pygame.Rect(50,
-                          50,
-                          player_image_up.get_width(),
-                          player_image_up.get_height())
-test_rect = pygame.Rect(100, 100, 100, 50)
+tiles = []
 
 
 def collision_test(rect, tiles):
@@ -61,42 +52,74 @@ def collision_test(rect, tiles):
     return hit_list
 
 
-def move(rect, movement, tiles):
-    collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
-    if movement[0] != 0:
-        if 0 <= rect.x + movement[0] <= display.get_width() - player_image.get_width():
-            rect.x += movement[0]
-        hit_list = collision_test(rect, tiles)
-        for tile in hit_list:
-            if tile[1] != '1':
-                if movement[0] > 0:
-                    rect.right = tile[0].left
-                    collision_types['right'] = True
-                else:
-                    rect.left = tile[0].right
-                    collision_types['left'] = True
-    else:
-        if 0 <= rect.y + movement[1] <= display.get_height() - player_image.get_height():
-            rect.y += movement[1]
-        hit_list = collision_test(rect, tiles)
-        for tile in hit_list:
-            if tile[1] != '1':
-                if movement[1] > 0:
-                    rect.bottom = tile[0].top
-                    collision_types['bottom'] = True
-                else:
-                    rect.top = tile[0].bottom
-                    collision_types['top'] = True
-    return rect, collision_types
+class Tank:
+    def __init__(self, speed=2, direction=DIRECTION_UP, image=sprites.subsurface((0, 0, 16, 16)), position=(50, 50)):
+        self.image = image
+        self.speed = speed
+        self.direction = direction
+        self.rect = pygame.Rect(position[0], position[0], 16, 16)
+        self.player_images = [sprites.subsurface((0, 0, 16, 16)),
+                              sprites.subsurface((64, 0, 16, 16)),
+                              sprites.subsurface((96, 0, 16, 16)),
+                              sprites.subsurface((32, 0, 16, 16))]
+        self.moving_state = False
+
+
+class Player(Tank):
+    def __init__(self, speed=2, direction=DIRECTION_UP, image=sprites.subsurface((0, 0, 16, 16)), position=(50, 50)):
+        Tank.__init__(self, speed=2, direction=DIRECTION_UP, image=sprites.subsurface((0, 0, 16, 16)), position=(50, 50))
+        self.pressed_keys = [False] * 4
+
+    def move(self):
+        # collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
+        for direction in range(4):
+            if self.pressed_keys[direction]:
+                self.direction = direction
+                self.image = self.player_images[direction]
+                self.moving_state = True
+                break
+        else:
+            self.moving_state = False
+        if self.moving_state:
+            if 0 <= self.rect.x <= display.get_width() - self.image.get_width():
+                if self.direction == DIRECTION_LEFT:
+                    self.rect.x -= self.speed
+                if self.direction == DIRECTION_RIGHT:
+                    self.rect.x += self.speed
+            if 0 <= self.rect.y <= display.get_height() - self.image.get_height():
+                if self.direction == DIRECTION_UP:
+                    self.rect.y -= self.speed
+                if self.direction == DIRECTION_DOWN:
+                    self.rect.y += self.speed
+            hit_list = collision_test(self.rect, tiles)
+            for tile in hit_list:
+                if tile[1] != '1':
+                    if self.direction == DIRECTION_DOWN:
+                        self.rect.bottom = tile[0].top
+                    if self.direction == DIRECTION_UP:
+                        self.rect.top = tile[0].bottom
+                    if self.direction == DIRECTION_RIGHT:
+                        self.rect.right = tile[0].left
+                    if self.direction == DIRECTION_LEFT:
+                        self.rect.left = tile[0].right
+
+player = Player(2, 0, sprites.subsurface((0, 0, 16, 16)), (50, 50))
+
+class Bullet:
+    def __init__(self, speed=5, direction=DIRECTION_UP, image=bullet_image, position=(player.rect.x, player.rect.y)):
+        self.image = image
+        self.speed = speed
+        self.direction = direction
+        self.rect = pygame.Rect(position[0], position[1], bullet_image.get_width(), bullet_image.get_height())
+
 
 main_menu()
 
 while True:
     display.fill((0, 0, 0))
 
-    display.blit(player_image, (player_rect.x, player_rect.y))
-
-    tile_rects = []
+    display.blit(player.image, (player.rect.x, player.rect.y))
+    tiles = []
     y = 0
     for row in game_map:
         x = 0
@@ -106,30 +129,11 @@ while True:
             if tile == '2':
                 display.blit(brick_image, (x * TILE_SIZE, y * TILE_SIZE))
             if tile != '0':
-                tile_rects.append((pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), tile))
+                tiles.append((pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), tile))
             x += 1
         y += 1
 
-    player_movement = [0, 0]
-    if moving_right == True:
-        player_movement[0] += 2
-        player_image = player_image_right
-    if moving_left == True:
-        player_movement[0] -= 2
-        player_image = player_image_left
-    if moving_up == True:
-        player_movement[1] -= 2
-        player_image = player_image_up
-    if moving_down == True:
-        player_movement[1] += 2
-        player_image = player_image_down
-
-    player_rect, collisions = move(player_rect, player_movement, tile_rects)
-
-    if player_rect.colliderect(test_rect):
-        pygame.draw.rect(screen, (255, 0, 0), test_rect)
-    else:
-        pygame.draw.rect(screen, (0, 0, 0), test_rect)
+    player.move()
 
     for event in pygame.event.get():  # event loop
         if event.type == QUIT:
@@ -137,27 +141,29 @@ while True:
             sys.exit()
         if event.type == KEYDOWN:
             if event.key == K_RIGHT:
-                moving_right = True
+                player.pressed_keys[DIRECTION_RIGHT] = True
             if event.key == K_LEFT:
-                moving_left = True
+                player.pressed_keys[DIRECTION_LEFT] = True
             if event.key == K_UP:
-                moving_up = True
+                player.pressed_keys[DIRECTION_UP] = True
             if event.key == K_DOWN:
-                moving_down = True
+                player.pressed_keys[DIRECTION_DOWN] = True
             if event.key == K_ESCAPE:
                 main_menu()
-                player_rect.x = 50
-                player_rect.y = 50
-                player_image = player_image_up
+                player.rect.x = 50
+                player.rect.y = 50
+                player.image = sprites.subsurface((0, 0, 16, 16))
+            if event.key == K_SPACE:
+                bullet = Bullet(5, player.direction, bullet_image, (player.rect.x, player.rect.y))
         if event.type == KEYUP:
             if event.key == K_RIGHT:
-                moving_right = False
+                player.pressed_keys[DIRECTION_RIGHT] = False
             if event.key == K_LEFT:
-                moving_left = False
+                player.pressed_keys[DIRECTION_LEFT] = False
             if event.key == K_UP:
-                moving_up = False
+                player.pressed_keys[DIRECTION_UP] = False
             if event.key == K_DOWN:
-                moving_down = False
+                player.pressed_keys[DIRECTION_DOWN] = False
 
     surf = pygame.transform.scale(display, WINDOW_SIZE)
     screen.blit(surf, (0, 0))
