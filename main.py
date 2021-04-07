@@ -1,6 +1,7 @@
 import pygame, sys
 from menu import main_menu
 from pygame.locals import *
+from random import randrange
 CLOCK = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Battle City')
@@ -15,15 +16,20 @@ brick_image = SPRITES.subsurface((256, 0, 16, 16))
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 
 game_map = [['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'],
-            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', '0', '2', '1', '2'],
-            ['2', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', '0', '0', '1', '2'],
-            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '2', '0', '2', '2', '2'],
-            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '0', '0', '0', '0', '2'],
-            ['2', '2', '2', '2', '2', '2', '2', '0', '0', '0', '2', '2', '2', '2', '0', '0', '0', '0', '2', '2'],
+            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', 'q', '2', '1', '2'],
+            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', '0', '0', '1', '2'],
+            ['2', '0', '0', '1', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '0', '0', '0', '2', '2'],
+            ['2', '0', '0', '1', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '0', '0', '0', '0', '2'],
+            ['2', '2', '2', '2', '2', '2', '2', '0', '0', '0', '2', '2', '2', '2', '0', '0', '0', '0', '0', '2'],
             ['2', '0', '0', '0', '1', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
             ['2', '2', '2', '0', '0', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
             ['2', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
-            ['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'],
+            ['2', '2', '2', '2', '2', '2', '2', '2', '2', '0', '0', '0', '0', '2', '2', '2', '2', '2', '0', '2'],
+            ['2', '2', '2', '1', '1', '1', '2', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '0', '2'],
+            ['2', '2', '2', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
+            ['2', '1', '1', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
+            ['2', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '0', '2'],
+            ['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2']
             ]
 
 tiles = []
@@ -42,17 +48,17 @@ class Tank:
         self.image = image
         self.speed = speed
         self.direction = direction
-        self.rect = pygame.Rect(position[0], position[0], 16, 16)
-        self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
-                              SPRITES.subsurface((64, 0, 16, 16)),
-                              SPRITES.subsurface((96, 0, 16, 16)),
-                              SPRITES.subsurface((32, 0, 16, 16))]
+        self.rect = pygame.Rect(position[0], position[1], 16, 16)
         self.moving_state = False
 
 
 class Player(Tank):
     def __init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50)):
         Tank.__init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50))
+        self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
+                              SPRITES.subsurface((64, 0, 16, 16)),
+                              SPRITES.subsurface((96, 0, 16, 16)),
+                              SPRITES.subsurface((32, 0, 16, 16))]
         self.pressed_keys = [False] * 4
 
     def move(self):
@@ -76,6 +82,36 @@ class Player(Tank):
                     self.rect.y -= self.speed
                 if self.direction == DIRECTION_DOWN:
                     self.rect.y += self.speed
+            for tile in collision_test(self.rect, tiles):
+                if tile[1] != '1':
+                    if self.direction == DIRECTION_DOWN:
+                        self.rect.bottom = tile[0].top
+                    if self.direction == DIRECTION_UP:
+                        self.rect.top = tile[0].bottom
+                    if self.direction == DIRECTION_RIGHT:
+                        self.rect.right = tile[0].left
+                    if self.direction == DIRECTION_LEFT:
+                        self.rect.left = tile[0].right
+class Enemy(Tank):
+    def __init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50)):
+        Tank.__init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50))
+        self.enemy_images = [SPRITES.subsurface((128, 0, 16, 16)),
+                              SPRITES.subsurface((192, 0, 16, 16)),
+                              SPRITES.subsurface((224, 0, 16, 16)),
+                              SPRITES.subsurface((160, 0, 16, 16))]
+
+    def move_stupidly(self):
+            self.image = self.enemy_images[self.direction]
+            if 0 <= self.rect.x <= DISPLAY.get_width() - self.image.get_width():
+                if self.direction == DIRECTION_LEFT:
+                    self.rect.x -= self.speed
+                if self.direction == DIRECTION_RIGHT:
+                    self.rect.x += self.speed
+            if 0 <= self.rect.y <= DISPLAY.get_height() - self.image.get_height():
+                if self.direction == DIRECTION_UP:
+                    self.rect.y -= self.speed
+                if self.direction == DIRECTION_DOWN:
+                    self.rect.y += self.speed
             hit_list = collision_test(self.rect, tiles)
             for tile in hit_list:
                 if tile[1] != '1':
@@ -87,8 +123,14 @@ class Player(Tank):
                         self.rect.right = tile[0].left
                     if self.direction == DIRECTION_LEFT:
                         self.rect.left = tile[0].right
+                    self.direction = randrange(4)
+                    break
+        
+
 
 player = Player(2, 0, SPRITES.subsurface((0, 0, 16, 16)), (50, 50))
+enemies = [Enemy(2, 0, SPRITES.subsurface((128, 0, 16, 16)), (100, 150)),
+           Enemy(2, 0, SPRITES.subsurface((128, 0, 16, 16)), (50, 150))]
 
 class Bullet:
     def __init__(self, speed=5, direction=DIRECTION_UP, image=bullet_image, position=(player.rect.x, player.rect.y)):
@@ -102,8 +144,9 @@ main_menu()
 
 while True:
     DISPLAY.fill((0, 0, 0))
-
     DISPLAY.blit(player.image, (player.rect.x, player.rect.y))
+    for enemy in enemies:
+        DISPLAY.blit(enemy.image, (enemy.rect.x, enemy.rect.y))
     tiles = []
     y = 0
     for row in game_map:
@@ -119,6 +162,8 @@ while True:
         y += 1
 
     player.move()
+    for enemy in enemies:
+        enemy.move_stupidly()
 
     for event in pygame.event.get():
         if event.type == QUIT:
