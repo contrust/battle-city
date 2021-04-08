@@ -52,7 +52,14 @@ class Tank:
         self.moving_state = False
 
     def fire(self):
-        bullets.append(Bullet(5, self.direction, (self.rect.x, self.rect.y)))
+        if self.direction == DIRECTION_UP:
+            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y)))
+        if self.direction == DIRECTION_DOWN:
+            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+16)))
+        if self.direction == DIRECTION_RIGHT:
+            bullets.append(Bullet(self.direction, (self.rect.x + 16, self.rect.y+6)))
+        if self.direction == DIRECTION_LEFT:
+            bullets.append(Bullet(self.direction, (self.rect.x, self.rect.y+6)))
 
 
 
@@ -137,15 +144,15 @@ enemies = [Enemy(2, 0, (100, 150)),
 bullets = []
 
 class Bullet:
-    def __init__(self, speed=5, direction=DIRECTION_UP, position=(player.rect.x, player.rect.y)):
-        self.image = bullet_image
-        self.speed = speed
+    def __init__(self, direction=DIRECTION_UP, position=(player.rect.x, player.rect.y)):
+        self.speed = 5
         self.direction = direction
-        self.rect = pygame.Rect(position[0], position[1], bullet_image.get_width(), bullet_image.get_height())
-        self.images = [SPRITES.subsurface((320, 100, 8, 8)),
-                       SPRITES.subsurface((336, 100, 8, 8)),
-                       SPRITES.subsurface((344, 100, 8, 8)),
-                       SPRITES.subsurface((328, 100, 8, 8))]
+        self.rect = pygame.Rect(position[0], position[1], 4, 4)
+        self.images = [SPRITES.subsurface((322, 102, 4, 4)),
+                       SPRITES.subsurface((338, 102, 4, 4)),
+                       SPRITES.subsurface((346, 102, 4, 4)),
+                       SPRITES.subsurface((330, 102, 4, 4))]
+        self.image = self.images[self.direction]
         self.flying = True
 
     def fly(self):
