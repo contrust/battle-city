@@ -44,17 +44,21 @@ def collision_test(rect, tiles):
 
 
 class Tank:
-    def __init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50)):
-        self.image = image
+    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50)):
+        self.image = SPRITES.subsurface((0, 0, 16, 16))
         self.speed = speed
         self.direction = direction
         self.rect = pygame.Rect(position[0], position[1], 16, 16)
         self.moving_state = False
 
+    def fire(self):
+        bullets.append(Bullet(5, self.direction, (self.rect.x, self.rect.y)))
+
+
 
 class Player(Tank):
-    def __init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50)):
-        Tank.__init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50))
+    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50)):
+        Tank.__init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50))
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
                               SPRITES.subsurface((64, 0, 16, 16)),
                               SPRITES.subsurface((96, 0, 16, 16)),
@@ -93,8 +97,8 @@ class Player(Tank):
                     if self.direction == DIRECTION_LEFT:
                         self.rect.left = tile[0].right
 class Enemy(Tank):
-    def __init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50)):
-        Tank.__init__(self, speed=2, direction=DIRECTION_UP, image=SPRITES.subsurface((0, 0, 16, 16)), position=(50, 50))
+    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50)):
+        Tank.__init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50))
         self.enemy_images = [SPRITES.subsurface((128, 0, 16, 16)),
                               SPRITES.subsurface((192, 0, 16, 16)),
                               SPRITES.subsurface((224, 0, 16, 16)),
@@ -112,8 +116,7 @@ class Enemy(Tank):
                     self.rect.y -= self.speed
                 if self.direction == DIRECTION_DOWN:
                     self.rect.y += self.speed
-            hit_list = collision_test(self.rect, tiles)
-            for tile in hit_list:
+            for tile in collision_test(self.rect, tiles):
                 if tile[1] != '1':
                     if self.direction == DIRECTION_DOWN:
                         self.rect.bottom = tile[0].top
@@ -124,21 +127,46 @@ class Enemy(Tank):
                     if self.direction == DIRECTION_LEFT:
                         self.rect.left = tile[0].right
                     self.direction = randrange(4)
-                    break
+                break
         
 
 
-player = Player(2, 0, SPRITES.subsurface((0, 0, 16, 16)), (50, 50))
-enemies = [Enemy(2, 0, SPRITES.subsurface((128, 0, 16, 16)), (100, 150)),
-           Enemy(2, 0, SPRITES.subsurface((128, 0, 16, 16)), (50, 150))]
+player = Player(2, 0, (50, 50))
+enemies = [Enemy(2, 0, (100, 150)),
+           Enemy(2, 0, (50, 150))]
+bullets = []
 
 class Bullet:
-    def __init__(self, speed=5, direction=DIRECTION_UP, image=bullet_image, position=(player.rect.x, player.rect.y)):
-        self.image = image
+    def __init__(self, speed=5, direction=DIRECTION_UP, position=(player.rect.x, player.rect.y)):
+        self.image = bullet_image
         self.speed = speed
         self.direction = direction
         self.rect = pygame.Rect(position[0], position[1], bullet_image.get_width(), bullet_image.get_height())
+        self.images = [SPRITES.subsurface((320, 100, 8, 8)),
+                       SPRITES.subsurface((336, 100, 8, 8)),
+                       SPRITES.subsurface((344, 100, 8, 8)),
+                       SPRITES.subsurface((328, 100, 8, 8))]
+        self.flying = True
 
+    def fly(self):
+            if self.flying:
+                self.image = self.images[self.direction]
+                if 0 <= self.rect.x <= DISPLAY.get_width() - self.image.get_width():
+                    if self.direction == DIRECTION_LEFT:
+                        self.rect.x -= self.speed
+                    if self.direction == DIRECTION_RIGHT:
+                        self.rect.x += self.speed
+                if 0 <= self.rect.y <= DISPLAY.get_height() - self.image.get_height():
+                    if self.direction == DIRECTION_UP:
+                        self.rect.y -= self.speed
+                    if self.direction == DIRECTION_DOWN:
+                        self.rect.y += self.speed
+                for tile in collision_test(self.rect, tiles):
+                    if tile[1] != '1':
+                        self.flying = False
+                        break
+            else:
+                bullets.remove(self)
 
 main_menu()
 
@@ -147,6 +175,8 @@ while True:
     DISPLAY.blit(player.image, (player.rect.x, player.rect.y))
     for enemy in enemies:
         DISPLAY.blit(enemy.image, (enemy.rect.x, enemy.rect.y))
+    for bullet in bullets:
+        DISPLAY.blit(bullet.image, (bullet.rect.x, bullet.rect.y))
     tiles = []
     y = 0
     for row in game_map:
@@ -164,6 +194,8 @@ while True:
     player.move()
     for enemy in enemies:
         enemy.move_stupidly()
+    for bullet in bullets[:]:
+        bullet.fly()
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -184,7 +216,7 @@ while True:
                 player.rect.y = 50
                 player.image = SPRITES.subsurface((0, 0, 16, 16))
             if event.key == K_SPACE:
-                bullet = Bullet(5, player.direction, bullet_image, (player.rect.x, player.rect.y))
+                player.fire()
         if event.type == KEYUP:
             if event.key == K_RIGHT:
                 player.pressed_keys[DIRECTION_RIGHT] = False
