@@ -53,13 +53,13 @@ class Tank:
 
     def fire(self):
         if self.direction == DIRECTION_UP:
-            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y)))
+            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y-4)))
         if self.direction == DIRECTION_DOWN:
             bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+16)))
         if self.direction == DIRECTION_RIGHT:
             bullets.append(Bullet(self.direction, (self.rect.x + 16, self.rect.y+6)))
         if self.direction == DIRECTION_LEFT:
-            bullets.append(Bullet(self.direction, (self.rect.x, self.rect.y+6)))
+            bullets.append(Bullet(self.direction, (self.rect.x - 4, self.rect.y+6)))
 
 
 
