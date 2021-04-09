@@ -9,63 +9,69 @@ WINDOW_SIZE = (600, 480)
 SCREEN = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
 DISPLAY = pygame.Surface((320, 240))
 SPRITES = pygame.image.load('sprite.png').convert_alpha()
-bullet_image = SPRITES.subsurface((320, 96, 16, 16))
-grass_image = SPRITES.subsurface((272, 32, 16, 16))
-TILE_SIZE = grass_image.get_width()
-brick_image = SPRITES.subsurface((256, 0, 16, 16))
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
+(BRICK, GRASS, BETON, ICE, WATER) = range(5)
 
-game_map = [['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'],
-            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', 'q', '2', '1', '2'],
-            ['2', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2', '0', '0', '1', '2'],
-            ['2', '0', '0', '1', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '0', '0', '0', '2', '2'],
-            ['2', '0', '0', '1', '0', '0', '0', '0', '0', '0', '2', '1', '1', '2', '0', '0', '0', '0', '0', '2'],
-            ['2', '2', '2', '2', '2', '2', '2', '0', '0', '0', '2', '2', '2', '2', '0', '0', '0', '0', '0', '2'],
-            ['2', '0', '0', '0', '1', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
-            ['2', '2', '2', '0', '0', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
-            ['2', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
-            ['2', '2', '2', '2', '2', '2', '2', '2', '2', '0', '0', '0', '0', '2', '2', '2', '2', '2', '0', '2'],
-            ['2', '2', '2', '1', '1', '1', '2', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '0', '2'],
-            ['2', '2', '2', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
-            ['2', '1', '1', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2'],
-            ['2', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '0', '2'],
-            ['2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2']
+game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+            ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0', '.', '0', '1', '0'],
+            ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0', '.', '.', '1', '0'],
+            ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1', '0', '.', '.', '.', '.', '0', '0'],
+            ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1', '0', '.', '.', '.', '.', '.', '0'],
+            ['0', '0', '0', '0', '0', '0', '0', '.', '.', '.', '0', '0', '0', '0', '.', '.', '.', '.', '.', '0'],
+            ['0', '.', '.', '.', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
+            ['0', '0', '0', '.', '.', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
+            ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
+            ['0', '0', '0', '0', '0', '0', '0', '0', '0', '.', '.', '.', '.', '0', '0', '0', '0', '0', '.', '0'],
+            ['0', '0', '0', '1', '1', '1', '0', '.', '.', '.', '.', '.', '.', '1', '1', '1', '1', '1', '.', '0'],
+            ['0', '0', '0', '1', '.', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
+            ['0', '1', '1', '1', '.', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
+            ['0', '1', '1', '1', '1', '1', '.', '.', '.', '.', '.', '.', '.', '1', '1', '1', '1', '1', '.', '0'],
+            ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
             ]
 
-tiles = []
+def draw(entity):
+    DISPLAY.blit(entity.image, (entity.rect.x, entity.rect.y))
 
+def get_hit_list(rect, entities):
+    return [entity for entity in entities if rect.colliderect(entity.rect)]
 
-def collision_test(rect, tiles):
-    hit_list = []
-    for tile in tiles:
-        if rect.colliderect(tile[0]):
-            hit_list.append(tile)
-    return hit_list
+class Tile:
+    def __init__(self, type, position):
+        self.type = type
+        self.images = [SPRITES.subsurface((256, 0, 16, 16)),
+                       SPRITES.subsurface((272, 32, 16, 16)),
+                       SPRITES.subsurface((256, 16, 16, 16)),
+                       SPRITES.subsurface((288, 32, 16, 16)),
+                       SPRITES.subsurface((256, 48, 16, 16))
+                       ]
+        self.rect = pygame.Rect(position[0], position[1], 16, 16)
+        self.image = self.images[type]
 
 
 class Tank:
-    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50)):
+    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         self.image = SPRITES.subsurface((0, 0, 16, 16))
         self.speed = speed
         self.direction = direction
         self.rect = pygame.Rect(position[0], position[1], 16, 16)
+        self.level = level
         self.moving_state = False
 
     def fire(self):
         if self.direction == DIRECTION_UP:
-            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y-4)))
+            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y-4), self, self.level))
         if self.direction == DIRECTION_DOWN:
-            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+16)))
+            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+16), self, self.level))
         if self.direction == DIRECTION_RIGHT:
-            bullets.append(Bullet(self.direction, (self.rect.x + 16, self.rect.y+6)))
+            bullets.append(Bullet(self.direction, (self.rect.x + 16, self.rect.y+6), self, self.level))
         if self.direction == DIRECTION_LEFT:
-            bullets.append(Bullet(self.direction, (self.rect.x - 4, self.rect.y+6)))
+            bullets.append(Bullet(self.direction, (self.rect.x - 4, self.rect.y+6), self, self.level))
 
 
 
 class Player(Tank):
-    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50)):
-        Tank.__init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50))
+    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+        Tank.__init__(self, speed, direction, position, level)
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
                               SPRITES.subsurface((64, 0, 16, 16)),
                               SPRITES.subsurface((96, 0, 16, 16)),
@@ -73,7 +79,6 @@ class Player(Tank):
         self.pressed_keys = [False] * 4
 
     def move(self):
-        # collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
         for direction in range(4):
             if self.pressed_keys[direction]:
                 self.direction = direction
@@ -93,19 +98,20 @@ class Player(Tank):
                     self.rect.y -= self.speed
                 if self.direction == DIRECTION_DOWN:
                     self.rect.y += self.speed
-            for tile in collision_test(self.rect, tiles):
-                if tile[1] != '1':
+            for tile in get_hit_list(self.rect, self.level.map):
+                if tile.type != GRASS:
                     if self.direction == DIRECTION_DOWN:
-                        self.rect.bottom = tile[0].top
+                        self.rect.bottom = tile.rect.top
                     if self.direction == DIRECTION_UP:
-                        self.rect.top = tile[0].bottom
+                        self.rect.top = tile.rect.bottom
                     if self.direction == DIRECTION_RIGHT:
-                        self.rect.right = tile[0].left
+                        self.rect.right = tile.rect.left
                     if self.direction == DIRECTION_LEFT:
-                        self.rect.left = tile[0].right
+                        self.rect.left = tile.rect.right
 class Enemy(Tank):
-    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50)):
-        Tank.__init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50))
+    global enemies
+    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+        Tank.__init__(self, speed, direction, position, level)
         self.enemy_images = [SPRITES.subsurface((128, 0, 16, 16)),
                               SPRITES.subsurface((192, 0, 16, 16)),
                               SPRITES.subsurface((224, 0, 16, 16)),
@@ -123,28 +129,39 @@ class Enemy(Tank):
                     self.rect.y -= self.speed
                 if self.direction == DIRECTION_DOWN:
                     self.rect.y += self.speed
-            for tile in collision_test(self.rect, tiles):
-                if tile[1] != '1':
+            for tile in get_hit_list(self.rect, self.level.map):
+                if tile.type != GRASS:
                     if self.direction == DIRECTION_DOWN:
-                        self.rect.bottom = tile[0].top
+                        self.rect.bottom = tile.rect.top
                     if self.direction == DIRECTION_UP:
-                        self.rect.top = tile[0].bottom
+                        self.rect.top = tile.rect.bottom
                     if self.direction == DIRECTION_RIGHT:
-                        self.rect.right = tile[0].left
+                        self.rect.right = tile.rect.left
                     if self.direction == DIRECTION_LEFT:
-                        self.rect.left = tile[0].right
+                        self.rect.left = tile.rect.right
                     self.direction = randrange(4)
                 break
-        
 
+    def die(self):
+        enemies.remove(self)
 
-player = Player(2, 0, (50, 50))
-enemies = [Enemy(2, 0, (100, 150)),
-           Enemy(2, 0, (50, 150))]
+class Level:
+    def __init__(self, game_map):
+        self.map = []
+        for y in range(len(game_map)):
+            for x in range(len(game_map[0])):
+                if game_map[y][x] != '.':
+                    self.map.append(Tile(int(game_map[y][x]), (x * 16, y * 16)))
+
 bullets = []
+current_level = Level(game_map)
+player = Player(2, 0, (50, 50), current_level)
+enemies = [Enemy(2, 0, (100, 150), current_level),
+           Enemy(2, 0, (50, 150), current_level)]
 
 class Bullet:
-    def __init__(self, direction=DIRECTION_UP, position=(player.rect.x, player.rect.y)):
+    global enemies, bullets
+    def __init__(self, direction=DIRECTION_UP, position=None, owner=None, level=None):
         self.speed = 5
         self.direction = direction
         self.rect = pygame.Rect(position[0], position[1], 4, 4)
@@ -153,6 +170,8 @@ class Bullet:
                        SPRITES.subsurface((346, 102, 4, 4)),
                        SPRITES.subsurface((330, 102, 4, 4))]
         self.image = self.images[self.direction]
+        self.owner = owner
+        self.level = level
         self.flying = True
 
     def fly(self):
@@ -168,12 +187,18 @@ class Bullet:
                         self.rect.y -= self.speed
                     if self.direction == DIRECTION_DOWN:
                         self.rect.y += self.speed
-                for tile in collision_test(self.rect, tiles):
-                    if tile[1] != '1':
+                for tile in get_hit_list(self.rect, self.level.map):
+                    if tile.type != GRASS:
                         self.flying = False
                         break
+                for enemy in get_hit_list(self.rect, enemies):
+                    enemy.die()
+                    self.die()
             else:
-                bullets.remove(self)
+                self.die()
+
+    def die(self):
+        bullets.remove(self)
 
 main_menu()
 
@@ -181,22 +206,14 @@ while True:
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(player.image, (player.rect.x, player.rect.y))
     for enemy in enemies:
-        DISPLAY.blit(enemy.image, (enemy.rect.x, enemy.rect.y))
+        draw(enemy)
+
     for bullet in bullets:
-        DISPLAY.blit(bullet.image, (bullet.rect.x, bullet.rect.y))
-    tiles = []
-    y = 0
-    for row in game_map:
-        x = 0
-        for tile in row:
-            if tile == '1':
-                DISPLAY.blit(grass_image, (x * TILE_SIZE, y * TILE_SIZE))
-            if tile == '2':
-                DISPLAY.blit(brick_image, (x * TILE_SIZE, y * TILE_SIZE))
-            if tile != '0':
-                tiles.append((pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), tile))
-            x += 1
-        y += 1
+        draw(bullet)
+
+    for tile in current_level.map:
+        draw(tile)
+
 
     player.move()
     for enemy in enemies:
