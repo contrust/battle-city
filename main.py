@@ -1,34 +1,33 @@
-import pygame, sys
+import pygame, sys, threading
 from menu import main_menu
 from pygame.locals import *
 from random import randrange
 CLOCK = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Battle City')
-WINDOW_SIZE = (600, 480)
+WINDOW_SIZE = (400, 400)
 SCREEN = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
-DISPLAY = pygame.Surface((320, 240))
+DISPLAY = pygame.Surface((208, 224))
 SPRITES = pygame.image.load('sprite.png').convert_alpha()
 BOLD_SPRITES = pygame.image.load('sprite1.png')
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 (BRICK, GRASS, BETON, ICE, WATER) = range(5)
 (HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS) = range(6)
 
-game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
-            ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0', '.', '0', '1', '0'],
-            ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0', '.', '.', '1', '0'],
-            ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1', '0', '.', '.', '.', '.', '0', '0'],
-            ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1', '0', '.', '.', '.', '.', '.', '0'],
-            ['0', '0', '0', '0', '0', '0', '0', '.', '.', '.', '0', '0', '0', '0', '.', '.', '.', '.', '.', '0'],
-            ['0', '.', '.', '.', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
-            ['0', '0', '0', '.', '.', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
-            ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
-            ['0', '0', '0', '0', '0', '0', '0', '0', '0', '.', '.', '.', '.', '0', '0', '0', '0', '0', '.', '0'],
-            ['0', '0', '0', '1', '1', '1', '0', '.', '.', '.', '.', '.', '.', '1', '1', '1', '1', '1', '.', '0'],
-            ['0', '0', '0', '1', '.', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
-            ['0', '1', '1', '1', '.', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0'],
-            ['0', '1', '1', '1', '1', '1', '.', '.', '.', '.', '.', '.', '.', '1', '1', '1', '1', '1', '.', '0'],
-            ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
+game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
+            ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
+            ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
+            ['0', '0', '0', '0', '0', '0', '0', '.', '.', '.', '0', '0', '0'],
+            ['0', '.', '.', '.', '1', '1', '0', '.', '.', '.', '.', '.', '.'],
+            ['0', '0', '0', '.', '.', '1', '0', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '0', '0', '0', '0', '0', '0', '.', '.', '.', '.'],
+            ['0', '1', '1', '0', '1', '1', '0', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ]
 
 def draw(entity):
@@ -40,17 +39,26 @@ def get_hit_list(rect, entities):
 class Tile:
     def __init__(self, type, position):
         self.type = type
-        self.images = [SPRITES.subsurface((256, 0, 8, 8)),
-                       SPRITES.subsurface((272, 32, 16, 16)),
-                       SPRITES.subsurface((256, 16, 8, 8)),
-                       SPRITES.subsurface((288, 32, 16, 16)),
-                       SPRITES.subsurface((256, 48, 16, 16))
+        self.images = [BOLD_SPRITES.subsurface((256, 0, 8, 8)),
+                       BOLD_SPRITES.subsurface((272, 32, 16, 16)),
+                       BOLD_SPRITES.subsurface((256, 16, 8, 8)),
+                       BOLD_SPRITES.subsurface((288, 32, 16, 16)),
+                       BOLD_SPRITES.subsurface((256, 48, 16, 16))
                        ]
         if type == BRICK or type == BETON:
             self.rect = pygame.Rect(position[0], position[1], 8, 8)
         else:
             self.rect = pygame.Rect(position[0], position[1], 16, 16)
         self.image = self.images[type]
+class Castle:
+    def __init__(self):
+        self.images = [BOLD_SPRITES.subsurface((304, 32, 16, 16)),
+                       BOLD_SPRITES.subsurface((320, 32, 16, 16))]
+        self.image = self.images[0]
+        self.rect = pygame.Rect(96, 208, 16, 16)
+
+    def die(self):
+        self.image = self.images[1]
 class Tank:
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         self.image = SPRITES.subsurface((0, 0, 16, 16))
@@ -80,10 +88,29 @@ class Tank:
         if self.direction == DIRECTION_DOWN:
             self.rect.y += self.speed
 
+    def align_collision(self, entity):
+        if self.direction == DIRECTION_DOWN:
+            self.rect.bottom = entity.rect.top
+        if self.direction == DIRECTION_UP:
+            self.rect.top = entity.rect.bottom
+        if self.direction == DIRECTION_RIGHT:
+            self.rect.right = entity.rect.left
+        if self.direction == DIRECTION_LEFT:
+            self.rect.left = entity.rect.right
+
     def turn_back(self):
         self.direction = 2 * (self.direction // 2) + (self.direction + 1) % 2
+
+    def on_map(self):
+        return 0 <= self.rect.x <= DISPLAY.get_width() - self.image.get_width() and 0 <= self.rect.y <= DISPLAY.get_height() - self.image.get_height()
+
+    def return_on_map(self):
+            if self.rect.x < 0: self.rect.x = 0
+            if self.rect.x > DISPLAY.get_width() - self.image.get_width(): self.rect.x = DISPLAY.get_width() - self.image.get_width()
+            if self.rect.y < 0: self.rect.y = 0
+            if self.rect.y > DISPLAY.get_height() - self.image.get_height(): self.rect.y = DISPLAY.get_height() - self.image.get_height()  
 class Player(Tank):
-    global enemies, bonuses
+    global enemies, bonuses, castle
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
@@ -103,34 +130,19 @@ class Player(Tank):
             self.moving_state = False
         if self.moving_state:
             self.make_step()
-            if self.rect.x < 0: self.rect.x = 0
-            if self.rect.x > DISPLAY.get_width() - self.image.get_width(): self.rect.x = DISPLAY.get_width() - self.image.get_width()
-            if self.rect.y < 0: self.rect.y = 0
-            if self.rect.y > DISPLAY.get_height() - self.image.get_height(): self.rect.y = DISPLAY.get_height() - self.image.get_height()             
+            self.return_on_map()
             for tile in get_hit_list(self.rect, self.level.map):
                 if tile.type != GRASS:
-                    if self.direction == DIRECTION_DOWN:
-                        self.rect.bottom = tile.rect.top
-                    if self.direction == DIRECTION_UP:
-                        self.rect.top = tile.rect.bottom
-                    if self.direction == DIRECTION_RIGHT:
-                        self.rect.right = tile.rect.left
-                    if self.direction == DIRECTION_LEFT:
-                        self.rect.left = tile.rect.right
+                    self.align_collision(tile)
             for enemy in get_hit_list(self.rect, enemies):
-                    if self.direction == DIRECTION_DOWN:
-                        self.rect.bottom = enemy.rect.top
-                    if self.direction == DIRECTION_UP:
-                        self.rect.top = enemy.rect.bottom
-                    if self.direction == DIRECTION_RIGHT:
-                        self.rect.right = enemy.rect.left
-                    if self.direction == DIRECTION_LEFT:
-                        self.rect.left = enemy.rect.right
+                self.align_collision(enemy)
             for bonus in get_hit_list(self.rect, bonuses):
                 if bonus.type == GRENADE:
                     for enemy in enemies[:]:
                         enemy.die()
                 bonus.die()
+            for c in get_hit_list(self.rect, [castle]):
+                self.align_collision(c)
 class Enemy(Tank):
     global enemies, player
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
@@ -142,42 +154,31 @@ class Enemy(Tank):
 
     def move_stupidly(self):
             self.image = self.enemy_images[self.direction]
-            if not (0 < self.rect.x < DISPLAY.get_width() - self.image.get_width() and 0 < self.rect.y < DISPLAY.get_height() - self.image.get_height()):
-                self.turn_back()
+            if not self.on_map():
+                self.return_on_map()
+                self.direction = randrange(4)
             self.make_step()
             for tile in get_hit_list(self.rect, self.level.map):
                 if tile.type != GRASS:
-                    if self.direction == DIRECTION_DOWN:
-                        self.rect.bottom = tile.rect.top
-                    if self.direction == DIRECTION_UP:
-                        self.rect.top = tile.rect.bottom
-                    if self.direction == DIRECTION_RIGHT:
-                        self.rect.right = tile.rect.left
-                    if self.direction == DIRECTION_LEFT:
-                        self.rect.left = tile.rect.right
+                    self.align_collision(tile)
                     self.direction = randrange(4)
                 break
             for enemy in get_hit_list(self.rect, enemies):
                 if enemy != self:
                     self.turn_back()
             if len(get_hit_list(self.rect, [player])) != 0:
-                    if self.direction == DIRECTION_DOWN:
-                        self.rect.bottom = player.rect.top
-                    if self.direction == DIRECTION_UP:
-                        self.rect.top = player.rect.bottom
-                    if self.direction == DIRECTION_RIGHT:
-                        self.rect.right = player.rect.left
-                    if self.direction == DIRECTION_LEFT:
-                        self.rect.left = player.rect.right
-                    if player.direction == 2 * (self.direction // 2) + (self.direction + 1) % 2:
-                        self.direction = randrange(4)
+                    self.align_collision(player)
+                    self.direction = randrange(4)
             for bonus in get_hit_list(self.rect, bonuses):
                 bonus.die()
+            for c in get_hit_list(self.rect, [castle]):
+                self.align_collision(c)
+                self.direction = randrange(4)
 
     def die(self):
         enemies.remove(self)
 class Bullet:
-    global enemies, bullets
+    global enemies, bullets, castle
     def __init__(self, direction=DIRECTION_UP, position=None, owner=None, level=None):
         self.speed = 5
         self.direction = direction
@@ -202,13 +203,16 @@ class Bullet:
             if self.direction == DIRECTION_DOWN:
                 self.rect.y += self.speed
             for tile in get_hit_list(self.rect, self.level.map):
+                if tile.type == BRICK:
+                    self.level.kill_tile(tile)
                 if tile.type != GRASS:
-                    if tile.type == BRICK or tile.type == BETON:
-                        self.level.kill_tile(tile)
-                        self.die()
+                    self.die()
             for enemy in get_hit_list(self.rect, enemies):
                 enemy.die()
                 self.die()
+            for c in get_hit_list(self.rect, [castle]):
+                self.die()
+                c.die()
         else:
             self.die()
 
@@ -227,6 +231,9 @@ class Level:
                             self.map.append(Tile(type, (x * 16 + 8 * (i % 2), y * 16 + 8 * (i // 2))))
                     else:
                         self.map.append(Tile(type, (x * 16, y * 16)))
+        self.protecting_blocks = ((88, 200), (88, 208), (88, 216), (96, 200), (104, 200), (112, 200), (112, 208), (112, 216))
+        for protecting_block in self.protecting_blocks:
+            self.map.append(Tile(BRICK, protecting_block))
     def kill_tile(self, tile):
         self.map.remove(tile)
 class Bonus:
@@ -246,12 +253,14 @@ class Bonus:
             bonuses.remove(self)
 bullets = []
 current_level = Level(game_map)
-player = Player(2, 0, (50, 50), current_level)
-enemies = [Enemy(2, 0, (150, 150), current_level),
-           Enemy(2, 0, (250, 150), current_level),
-           Enemy(2, 0, (200, 200), current_level)]
+player = Player(2, 0, (64, 208), current_level)
+enemies = [Enemy(2, 0, (80, 32), current_level),
+           Enemy(2, 0, (100, 150), current_level),
+           Enemy(2, 0, (100, 200), current_level)]
 bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
            Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
+
+castle = Castle()
 
 main_menu()
 
@@ -269,7 +278,9 @@ while True:
 
     for bonus in bonuses:
         draw(bonus)
-
+    
+    draw(castle)
+    
 
     player.move()
     for enemy in enemies:
