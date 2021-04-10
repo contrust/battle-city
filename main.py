@@ -19,12 +19,12 @@ game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
             ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
-            ['0', '0', '0', '0', '0', '0', '0', '.', '.', '.', '0', '0', '0'],
-            ['0', '.', '.', '.', '1', '1', '0', '.', '.', '.', '.', '.', '.'],
-            ['0', '0', '0', '.', '.', '1', '0', '.', '.', '.', '.', '.', '.'],
+            ['0', '0', '0', '0', '0', '0', '1', '0', '.', '.', '0', '0', '0'],
+            ['0', '.', '.', '.', '1', '1', '1', '0', '.', '.', '.', '.', '.'],
+            ['0', '0', '0', '.', '.', '1', '1', '0', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
-            ['0', '1', '1', '0', '0', '0', '0', '0', '0', '.', '.', '.', '.'],
-            ['0', '1', '1', '0', '1', '1', '0', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '0', '0', '0', '1', '0', '0', '.', '.', '.', '.'],
+            ['0', '1', '1', '0', '1', '1', '1', '.', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
@@ -59,6 +59,7 @@ class Castle:
 
     def die(self):
         self.image = self.images[1]
+        main_menu()
 class Tank:
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         self.x = position[0]
@@ -68,17 +69,20 @@ class Tank:
         self.direction = direction
         self.rect = pygame.Rect(self.x, self.y, 16, 16)
         self.level = level
+        self.can_fire = True
         self.moving_state = False
 
     def fire(self):
-        if self.direction == DIRECTION_UP:
-            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y), self, self.level))
-        if self.direction == DIRECTION_DOWN:
-            bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+12), self, self.level))
-        if self.direction == DIRECTION_RIGHT:
-            bullets.append(Bullet(self.direction, (self.rect.x + 12, self.rect.y+6), self, self.level))
-        if self.direction == DIRECTION_LEFT:
-            bullets.append(Bullet(self.direction, (self.rect.x, self.rect.y+6), self, self.level))
+        if self.can_fire:
+            if self.direction == DIRECTION_UP:
+                bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y), self, self.level))
+            if self.direction == DIRECTION_DOWN:
+                bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+12), self, self.level))
+            if self.direction == DIRECTION_RIGHT:
+                bullets.append(Bullet(self.direction, (self.rect.x + 12, self.rect.y+6), self, self.level))
+            if self.direction == DIRECTION_LEFT:
+                bullets.append(Bullet(self.direction, (self.rect.x, self.rect.y+6), self, self.level))
+            self.can_fire = False
 
     def make_step(self):
         if self.direction == DIRECTION_LEFT:
@@ -147,6 +151,8 @@ class Player(Tank):
                 bonus.die()
             for c in get_hit_list(self.rect, [castle]):
                 self.align_collision(c)
+    def die(self):
+        main_menu()
 class Enemy(Tank):
     global enemies, player
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
@@ -182,7 +188,7 @@ class Enemy(Tank):
     def die(self):
         enemies.remove(self)
 class Bullet:
-    global enemies, bullets, castle
+    global enemies, bullets, castle, player
     def __init__(self, direction=DIRECTION_UP, position=None, owner=None, level=None):
         self.x = position[0]
         self.y = position[1]
@@ -214,9 +220,14 @@ class Bullet:
                     self.level.kill_tile(tile)
                 if tile.type != GRASS:
                     self.die()
-            for enemy in get_hit_list(self.rect, enemies):
-                enemy.die()
-                self.die()
+            if type(self.owner) is Player:
+                for enemy in get_hit_list(self.rect, enemies):
+                    enemy.die()
+                    self.die()
+            else:
+                for p in get_hit_list(self.rect, [player]):
+                    p.die()
+                    self.die()
             for c in get_hit_list(self.rect, [castle]):
                 self.die()
                 c.die()
@@ -226,6 +237,7 @@ class Bullet:
     def die(self):
         if self in bullets:
             bullets.remove(self)
+        self.owner.can_fire = True
 class Level:
     def __init__(self, game_map):
         self.map = []
@@ -262,8 +274,8 @@ bullets = []
 current_level = Level(game_map)
 player = Player(3/4, 0, (64, 208), current_level)
 enemies = [Enemy(1/2, 0, (80, 32), current_level),
-           Enemy(1/2, 0, (100, 150), current_level),
-           Enemy(1/2, 0, (100, 200), current_level)]
+           Enemy(1/2, 0, (96, 96), current_level),
+           Enemy(1/2, 0, (150, 200), current_level)]
 bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
            Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
 
@@ -276,6 +288,8 @@ while True:
     DISPLAY.blit(player.image, (player.rect.x, player.rect.y))
     for enemy in enemies:
         draw(enemy)
+        if randrange(150) == 0:
+            enemy.fire()
 
     for bullet in bullets:
         draw(bullet)
@@ -298,7 +312,6 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
-            sys.exit()
         if event.type == KEYDOWN:
             if event.key == K_RIGHT:
                 player.pressed_keys[DIRECTION_RIGHT] = True
