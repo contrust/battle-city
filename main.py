@@ -81,6 +81,7 @@ class Tank:
     def turn_back(self):
         self.direction = 2 * (self.direction // 2) + (self.direction + 1) % 2
 class Player(Tank):
+    global enemies
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
@@ -114,8 +115,17 @@ class Player(Tank):
                         self.rect.right = tile.rect.left
                     if self.direction == DIRECTION_LEFT:
                         self.rect.left = tile.rect.right
+            for enemy in get_hit_list(self.rect, enemies):
+                    if self.direction == DIRECTION_DOWN:
+                        self.rect.bottom = enemy.rect.top
+                    if self.direction == DIRECTION_UP:
+                        self.rect.top = enemy.rect.bottom
+                    if self.direction == DIRECTION_RIGHT:
+                        self.rect.right = enemy.rect.left
+                    if self.direction == DIRECTION_LEFT:
+                        self.rect.left = enemy.rect.right
 class Enemy(Tank):
-    global enemies
+    global enemies, player
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.enemy_images = [SPRITES.subsurface((128, 0, 16, 16)),
@@ -140,6 +150,20 @@ class Enemy(Tank):
                         self.rect.left = tile.rect.right
                     self.direction = randrange(4)
                 break
+            for enemy in get_hit_list(self.rect, enemies):
+                if enemy != self:
+                    self.turn_back()
+            if len(get_hit_list(self.rect, [player])) != 0:
+                    if self.direction == DIRECTION_DOWN:
+                        self.rect.bottom = player.rect.top
+                    if self.direction == DIRECTION_UP:
+                        self.rect.top = player.rect.bottom
+                    if self.direction == DIRECTION_RIGHT:
+                        self.rect.right = player.rect.left
+                    if self.direction == DIRECTION_LEFT:
+                        self.rect.left = player.rect.right
+                    if player.direction == 2 * (self.direction // 2) + (self.direction + 1) % 2:
+                        self.direction = randrange(4)
 
     def die(self):
         enemies.remove(self)
@@ -198,9 +222,9 @@ class Level:
         self.map.remove(tile)
 bullets = []
 current_level = Level(game_map)
-player = Player(4, 0, (50, 50), current_level)
-enemies = [Enemy(2, 0, (100, 150), current_level),
-           Enemy(2, 0, (50, 150), current_level)]
+player = Player(2, 0, (50, 50), current_level)
+enemies = [Enemy(2, 0, (200, 150), current_level),
+           Enemy(2, 0, (50, 200), current_level)]
 
 main_menu()
 
