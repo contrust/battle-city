@@ -9,8 +9,10 @@ WINDOW_SIZE = (600, 480)
 SCREEN = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
 DISPLAY = pygame.Surface((320, 240))
 SPRITES = pygame.image.load('sprite.png').convert_alpha()
+BOLD_SPRITES = pygame.image.load('sprite1.png')
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 (BRICK, GRASS, BETON, ICE, WATER) = range(5)
+(HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS) = range(6)
 
 game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '0', '.', '0', '1', '0'],
@@ -81,7 +83,7 @@ class Tank:
     def turn_back(self):
         self.direction = 2 * (self.direction // 2) + (self.direction + 1) % 2
 class Player(Tank):
-    global enemies
+    global enemies, bonuses
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
@@ -124,6 +126,11 @@ class Player(Tank):
                         self.rect.right = enemy.rect.left
                     if self.direction == DIRECTION_LEFT:
                         self.rect.left = enemy.rect.right
+            for bonus in get_hit_list(self.rect, bonuses):
+                if bonus.type == GRENADE:
+                    for enemy in enemies[:]:
+                        enemy.die()
+                bonus.die()
 class Enemy(Tank):
     global enemies, player
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
@@ -164,6 +171,8 @@ class Enemy(Tank):
                         self.rect.left = player.rect.right
                     if player.direction == 2 * (self.direction // 2) + (self.direction + 1) % 2:
                         self.direction = randrange(4)
+            for bonus in get_hit_list(self.rect, bonuses):
+                bonus.die()
 
     def die(self):
         enemies.remove(self)
@@ -220,11 +229,29 @@ class Level:
                         self.map.append(Tile(type, (x * 16, y * 16)))
     def kill_tile(self, tile):
         self.map.remove(tile)
+class Bonus:
+    def __init__(self, type, position):
+        self.type = type
+        self.images = [BOLD_SPRITES.subsurface((255, 111, 16, 15)),
+                       BOLD_SPRITES.subsurface((271, 111, 16, 15)),
+                       BOLD_SPRITES.subsurface((287, 111, 16, 15)),
+                       BOLD_SPRITES.subsurface((303, 111, 16, 15)),
+                       BOLD_SPRITES.subsurface((319, 111, 16, 15)),
+                       BOLD_SPRITES.subsurface((335, 111, 16, 15))]
+        self.image = self.images[type]
+        self.rect = pygame.Rect(position[0], position[1], 16, 15)
+
+    def die(self):
+        if self in bonuses:
+            bonuses.remove(self)
 bullets = []
 current_level = Level(game_map)
 player = Player(2, 0, (50, 50), current_level)
-enemies = [Enemy(2, 0, (200, 150), current_level),
-           Enemy(2, 0, (50, 200), current_level)]
+enemies = [Enemy(2, 0, (150, 150), current_level),
+           Enemy(2, 0, (250, 150), current_level),
+           Enemy(2, 0, (200, 200), current_level)]
+bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
+           Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
 
 main_menu()
 
@@ -239,6 +266,9 @@ while True:
 
     for tile in current_level.map:
         draw(tile)
+
+    for bonus in bonuses:
+        draw(bonus)
 
 
     player.move()
