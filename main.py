@@ -61,10 +61,12 @@ class Castle:
         self.image = self.images[1]
 class Tank:
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+        self.x = position[0]
+        self.y = position[1]
         self.image = SPRITES.subsurface((0, 0, 16, 16))
         self.speed = speed
         self.direction = direction
-        self.rect = pygame.Rect(position[0], position[1], 16, 16)
+        self.rect = pygame.Rect(self.x, self.y, 16, 16)
         self.level = level
         self.moving_state = False
 
@@ -80,13 +82,14 @@ class Tank:
 
     def make_step(self):
         if self.direction == DIRECTION_LEFT:
-            self.rect.x -= self.speed
+            self.x -= self.speed
         if self.direction == DIRECTION_RIGHT:
-            self.rect.x += self.speed
+            self.x += self.speed
         if self.direction == DIRECTION_UP:
-            self.rect.y -= self.speed
+            self.y -= self.speed
         if self.direction == DIRECTION_DOWN:
-            self.rect.y += self.speed
+            self.y += self.speed
+        self.rect.topleft = round(self.x), round(self.y)
 
     def align_collision(self, entity):
         if self.direction == DIRECTION_DOWN:
@@ -97,21 +100,22 @@ class Tank:
             self.rect.right = entity.rect.left
         if self.direction == DIRECTION_LEFT:
             self.rect.left = entity.rect.right
+        self.x, self.y = self.rect.topleft
 
     def turn_back(self):
         self.direction = 2 * (self.direction // 2) + (self.direction + 1) % 2
 
     def on_map(self):
-        return 0 <= self.rect.x <= DISPLAY.get_width() - self.image.get_width() and 0 <= self.rect.y <= DISPLAY.get_height() - self.image.get_height()
+        return 0 <= self.x <= DISPLAY.get_width() - self.image.get_width() and 0 <= self.y <= DISPLAY.get_height() - self.image.get_height()
 
     def return_on_map(self):
-            if self.rect.x < 0: self.rect.x = 0
-            if self.rect.x > DISPLAY.get_width() - self.image.get_width(): self.rect.x = DISPLAY.get_width() - self.image.get_width()
-            if self.rect.y < 0: self.rect.y = 0
-            if self.rect.y > DISPLAY.get_height() - self.image.get_height(): self.rect.y = DISPLAY.get_height() - self.image.get_height()  
+            if self.x < 0: self.x = 0
+            if self.x > DISPLAY.get_width() - self.image.get_width(): self.x = DISPLAY.get_width() - self.image.get_width()
+            if self.y < 0: self.y = 0
+            if self.y > DISPLAY.get_height() - self.image.get_height(): self.y = DISPLAY.get_height() - self.image.get_height()  
 class Player(Tank):
     global enemies, bonuses, castle
-    def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+    def __init__(self, speed=0.75, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
                               SPRITES.subsurface((64, 0, 16, 16)),
@@ -180,9 +184,11 @@ class Enemy(Tank):
 class Bullet:
     global enemies, bullets, castle
     def __init__(self, direction=DIRECTION_UP, position=None, owner=None, level=None):
-        self.speed = 5
+        self.x = position[0]
+        self.y = position[1]
+        self.speed = 2
         self.direction = direction
-        self.rect = pygame.Rect(position[0], position[1], 4, 4)
+        self.rect = pygame.Rect(self.x, self.y, 4, 4)
         self.images = [SPRITES.subsurface((322, 102, 4, 4)),
                        SPRITES.subsurface((338, 102, 4, 4)),
                        SPRITES.subsurface((346, 102, 4, 4)),
@@ -195,13 +201,14 @@ class Bullet:
         self.image = self.images[self.direction]
         if 0 < self.rect.x < DISPLAY.get_width() - self.image.get_width() and 0 < self.rect.y < DISPLAY.get_height() - self.image.get_height():
             if self.direction == DIRECTION_LEFT:
-                self.rect.x -= self.speed
+                self.x -= self.speed
             if self.direction == DIRECTION_RIGHT:
-                self.rect.x += self.speed
+                self.x += self.speed
             if self.direction == DIRECTION_UP:
-                self.rect.y -= self.speed
+                self.y -= self.speed
             if self.direction == DIRECTION_DOWN:
-                self.rect.y += self.speed
+                self.y += self.speed
+            self.rect.topleft = round(self.x), round(self.y)
             for tile in get_hit_list(self.rect, self.level.map):
                 if tile.type == BRICK:
                     self.level.kill_tile(tile)
@@ -253,10 +260,10 @@ class Bonus:
             bonuses.remove(self)
 bullets = []
 current_level = Level(game_map)
-player = Player(2, 0, (64, 208), current_level)
-enemies = [Enemy(2, 0, (80, 32), current_level),
-           Enemy(2, 0, (100, 150), current_level),
-           Enemy(2, 0, (100, 200), current_level)]
+player = Player(3/4, 0, (64, 208), current_level)
+enemies = [Enemy(1/2, 0, (80, 32), current_level),
+           Enemy(1/2, 0, (100, 150), current_level),
+           Enemy(1/2, 0, (100, 200), current_level)]
 bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
            Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
 
@@ -318,4 +325,4 @@ while True:
     surf = pygame.transform.scale(DISPLAY, WINDOW_SIZE)
     SCREEN.blit(surf, (0, 0))
     pygame.display.update()
-    CLOCK.tick(20)
+    CLOCK.tick(60)
