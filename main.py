@@ -2,6 +2,8 @@ import pygame, sys, threading
 from menu import main_menu
 from pygame.locals import *
 from random import randrange
+from queue import Queue
+
 CLOCK = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Battle City')
@@ -19,9 +21,9 @@ game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '.', '.', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
             ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
-            ['0', '0', '0', '0', '0', '0', '1', '0', '.', '.', '0', '0', '0'],
-            ['0', '.', '.', '.', '1', '1', '1', '0', '.', '.', '.', '.', '.'],
-            ['0', '0', '0', '.', '.', '1', '1', '0', '.', '.', '.', '.', '.'],
+            ['0', '0', '0', '0', '.', '.', '.', '.', '.', '.', '0', '0', '0'],
+            ['0', '.', '.', '.', '1', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '0', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '0', '0', '1', '0', '0', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '1', '1', '1', '.', '.', '.', '.', '.', '.'],
@@ -30,11 +32,14 @@ game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
             ]
 
+
 def draw(entity):
     DISPLAY.blit(entity.image, (entity.rect.x, entity.rect.y))
 
+
 def get_hit_list(rect, entities):
     return [entity for entity in entities if rect.colliderect(entity.rect)]
+
 
 class Tile:
     def __init__(self, type, position):
@@ -50,6 +55,8 @@ class Tile:
         else:
             self.rect = pygame.Rect(position[0], position[1], 16, 16)
         self.image = self.images[type]
+
+
 class Castle:
     def __init__(self):
         self.images = [BOLD_SPRITES.subsurface((304, 32, 16, 16)),
@@ -60,6 +67,8 @@ class Castle:
     def die(self):
         self.image = self.images[1]
         main_menu()
+
+
 class Tank:
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         self.x = position[0]
@@ -77,11 +86,11 @@ class Tank:
             if self.direction == DIRECTION_UP:
                 bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y), self, self.level))
             if self.direction == DIRECTION_DOWN:
-                bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y+12), self, self.level))
+                bullets.append(Bullet(self.direction, (self.rect.x + 5, self.rect.y + 12), self, self.level))
             if self.direction == DIRECTION_RIGHT:
-                bullets.append(Bullet(self.direction, (self.rect.x + 12, self.rect.y+6), self, self.level))
+                bullets.append(Bullet(self.direction, (self.rect.x + 12, self.rect.y + 6), self, self.level))
             if self.direction == DIRECTION_LEFT:
-                bullets.append(Bullet(self.direction, (self.rect.x, self.rect.y+6), self, self.level))
+                bullets.append(Bullet(self.direction, (self.rect.x, self.rect.y + 6), self, self.level))
             self.can_fire = False
 
     def make_step(self):
@@ -113,12 +122,15 @@ class Tank:
         return 0 <= self.x <= DISPLAY.get_width() - self.image.get_width() and 0 <= self.y <= DISPLAY.get_height() - self.image.get_height()
 
     def return_on_map(self):
-            if self.x < 0: self.x = 0
-            if self.x > DISPLAY.get_width() - self.image.get_width(): self.x = DISPLAY.get_width() - self.image.get_width()
-            if self.y < 0: self.y = 0
-            if self.y > DISPLAY.get_height() - self.image.get_height(): self.y = DISPLAY.get_height() - self.image.get_height()  
+        if self.x < 0: self.x = 0
+        if self.x > DISPLAY.get_width() - self.image.get_width(): self.x = DISPLAY.get_width() - self.image.get_width()
+        if self.y < 0: self.y = 0
+        if self.y > DISPLAY.get_height() - self.image.get_height(): self.y = DISPLAY.get_height() - self.image.get_height()
+
+
 class Player(Tank):
     global enemies, bonuses, castle
+
     def __init__(self, speed=0.75, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.player_images = [SPRITES.subsurface((0, 0, 16, 16)),
@@ -151,44 +163,124 @@ class Player(Tank):
                 bonus.die()
             for c in get_hit_list(self.rect, [castle]):
                 self.align_collision(c)
+
     def die(self):
         main_menu()
+
+
 class Enemy(Tank):
     global enemies, player
+
     def __init__(self, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
         self.enemy_images = [SPRITES.subsurface((128, 0, 16, 16)),
-                              SPRITES.subsurface((192, 0, 16, 16)),
-                              SPRITES.subsurface((224, 0, 16, 16)),
-                              SPRITES.subsurface((160, 0, 16, 16))]
+                             SPRITES.subsurface((192, 0, 16, 16)),
+                             SPRITES.subsurface((224, 0, 16, 16)),
+                             SPRITES.subsurface((160, 0, 16, 16))]
+        self.pathToPlayer = []
 
     def move_stupidly(self):
+        self.image = self.enemy_images[self.direction]
+        if not self.on_map():
+            self.return_on_map()
+            self.direction = randrange(4)
+        self.make_step()
+        for tile in get_hit_list(self.rect, self.level.map):
+            if tile.type != GRASS:
+                self.align_collision(tile)
+                self.direction = randrange(4)
+            break
+        for enemy in get_hit_list(self.rect, enemies):
+            if enemy != self:
+                self.turn_back()
+        if len(get_hit_list(self.rect, [player])) != 0:
+            self.align_collision(player)
+            self.direction = randrange(4)
+        for bonus in get_hit_list(self.rect, bonuses):
+            bonus.die()
+        for c in get_hit_list(self.rect, [castle]):
+            self.align_collision(c)
+            self.direction = randrange(4)
+
+    def move_to_player(self):
+        if len(self.pathToPlayer) != 0:
+            if self.rect.x == self.pathToPlayer[0][0] and self.rect.y == self.pathToPlayer[0][1]:
+                self.pathToPlayer.pop(0)
+        if len(self.pathToPlayer) != 0:
+            change = (self.pathToPlayer[0][0] - self.rect.x, self.pathToPlayer[0][1] - self.rect.y)
+            if change[0] > 0:
+                self.direction = DIRECTION_RIGHT
+            if change[0] < 0:
+                self.direction = DIRECTION_LEFT
+            if change[1] > 0:
+                self.direction = DIRECTION_DOWN
+            if change[1] < 0:
+                self.direction = DIRECTION_UP
             self.image = self.enemy_images[self.direction]
-            if not self.on_map():
-                self.return_on_map()
-                self.direction = randrange(4)
             self.make_step()
-            for tile in get_hit_list(self.rect, self.level.map):
-                if tile.type != GRASS:
-                    self.align_collision(tile)
-                    self.direction = randrange(4)
-                break
-            for enemy in get_hit_list(self.rect, enemies):
-                if enemy != self:
-                    self.turn_back()
-            if len(get_hit_list(self.rect, [player])) != 0:
-                    self.align_collision(player)
-                    self.direction = randrange(4)
-            for bonus in get_hit_list(self.rect, bonuses):
-                bonus.die()
-            for c in get_hit_list(self.rect, [castle]):
-                self.align_collision(c)
-                self.direction = randrange(4)
+        else:
+            self.move_stupidly()
 
     def die(self):
         enemies.remove(self)
+
+    def find_path(self, path_point):
+        point = (self.rect.x - self.rect.x % 16, self.rect.y - self.rect.y % 16)
+        path_point = (path_point[0] - path_point[0] % 16, path_point[1] - path_point[1] % 16)
+        rect = pygame.Rect(self.rect.x, self.rect.y, 16, 16)
+        paths = {}
+        paths[point] = SinglyLinkedList(point)
+        points = Queue()
+        points.put(point)
+        while not points.empty():
+            point = points.get()
+            if 0 <= point[0] <= DISPLAY.get_width() - 16 and 0 <= point[1] <= DISPLAY.get_height() - 16:
+                for dx in range(-16, 32, 16):
+                    for dy in range(-16, 32, 16):
+                        moved_point = (point[0] + dx, point[1] + dy)
+                        rect.x, rect.y = moved_point
+                        if dx != 0 and dy != 0 or moved_point in paths.keys():
+                            continue
+                        if not len(get_hit_list(rect, self.level.map)):
+                            points.put(moved_point)
+                            paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
+        self.pathToPlayer = self.get_point(paths[path_point])
+
+    def get_point(self, path_point):
+        a = []
+        while path_point.previous != None:
+            a.append(path_point.value)
+            path_point = path_point.previous
+        return a[1::-1]
+
+    def get_point(self, path_point):
+        a = []
+        while path_point.previous != None:
+            a.append(path_point.value)
+            path_point = path_point.previous
+        return a[::-1]
+
+
+class SinglyLinkedList:
+    def __init__(self, value, previous=None):
+        self.value = value
+        self.previous = previous
+        self.length = 1 if previous == None else previous.length + 1
+
+    def enumerator(self):
+        yield self.value
+        pathItem = self.previous
+        while pathItem != None:
+            yield pathItem
+            pathItem = pathItem.previous
+
+    def die(self):
+        enemies.remove(self)
+
+
 class Bullet:
     global enemies, bullets, castle, player
+
     def __init__(self, direction=DIRECTION_UP, position=None, owner=None, level=None):
         self.x = position[0]
         self.y = position[1]
@@ -238,6 +330,8 @@ class Bullet:
         if self in bullets:
             bullets.remove(self)
         self.owner.can_fire = True
+
+
 class Level:
     def __init__(self, game_map):
         self.map = []
@@ -250,11 +344,15 @@ class Level:
                             self.map.append(Tile(type, (x * 16 + 8 * (i % 2), y * 16 + 8 * (i // 2))))
                     else:
                         self.map.append(Tile(type, (x * 16, y * 16)))
-        self.protecting_blocks = ((88, 200), (88, 208), (88, 216), (96, 200), (104, 200), (112, 200), (112, 208), (112, 216))
+        self.protecting_blocks = (
+        (88, 200), (88, 208), (88, 216), (96, 200), (104, 200), (112, 200), (112, 208), (112, 216))
         for protecting_block in self.protecting_blocks:
             self.map.append(Tile(BRICK, protecting_block))
+
     def kill_tile(self, tile):
         self.map.remove(tile)
+
+
 class Bonus:
     def __init__(self, type, position):
         self.type = type
@@ -270,12 +368,14 @@ class Bonus:
     def die(self):
         if self in bonuses:
             bonuses.remove(self)
+
+
 bullets = []
 current_level = Level(game_map)
-player = Player(3/4, 0, (64, 208), current_level)
-enemies = [Enemy(1/2, 0, (80, 32), current_level),
-           Enemy(1/2, 0, (96, 96), current_level),
-           Enemy(1/2, 0, (150, 200), current_level)]
+player = Player(3 / 4, 0, (64, 208), current_level)
+enemies = [Enemy(1 / 2, 0, (80, 32), current_level),
+           Enemy(1 / 2, 0, (96, 96), current_level),
+           Enemy(1 / 2, 0, (112, 64), current_level)]
 bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
            Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
 
@@ -286,10 +386,13 @@ main_menu()
 while True:
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(player.image, (player.rect.x, player.rect.y))
+
     for enemy in enemies:
         draw(enemy)
         if randrange(150) == 0:
             enemy.fire()
+        if randrange(150) == 0:
+            enemy.find_path((player.rect.x, player.rect.y))
 
     for bullet in bullets:
         draw(bullet)
@@ -299,13 +402,12 @@ while True:
 
     for bonus in bonuses:
         draw(bonus)
-    
+
     draw(castle)
-    
 
     player.move()
     for enemy in enemies:
-        enemy.move_stupidly()
+        enemy.move_to_player()
     for bullet in bullets[:]:
         bullet.fly()
 
