@@ -23,8 +23,8 @@ game_map = [['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '.', '.', '1', '.', '.', '.', '.', '.', '.', '0', '1', '1'],
             ['0', '0', '0', '0', '.', '.', '.', '.', '.', '.', '0', '0', '0'],
             ['0', '.', '.', '.', '1', '.', '.', '.', '.', '.', '.', '.', '.'],
-            ['0', '0', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
-            ['0', '1', '1', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
+            ['0', '0', '0', '.', '.', '.', '0', '.', '.', '.', '.', '.', '.'],
+            ['0', '1', '1', '.', '0', '0', '0', '0', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '0', '0', '1', '0', '0', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '1', '1', '1', '.', '.', '.', '.', '.', '.'],
             ['0', '1', '1', '0', '.', '.', '.', '.', '.', '.', '.', '.', '.'],
@@ -67,6 +67,7 @@ class Castle:
     def die(self):
         self.image = self.images[1]
         main_menu()
+        create_level()
 
 
 class Tank:
@@ -129,7 +130,7 @@ class Tank:
 
 
 class Player(Tank):
-    global enemies, bonuses, castle
+    global enemies, bonuses, castle, current_level
 
     def __init__(self, speed=0.75, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, speed, direction, position, level)
@@ -166,6 +167,7 @@ class Player(Tank):
 
     def die(self):
         main_menu()
+        create_level()
 
 
 class Enemy(Tank):
@@ -203,6 +205,23 @@ class Enemy(Tank):
             self.direction = randrange(4)
 
     def move_to_player(self):
+        global protecting_blocks
+        for c in get_hit_list(self.rect, [castle]):
+            self.align_collision(c)
+            return
+        for tile in get_hit_list(self.rect, self.level.map):
+            if (tile.rect.x, tile.rect.y) in protecting_blocks:
+                self.align_collision(tile)
+                return
+        for bonus in get_hit_list(self.rect, bonuses):
+            bonus.die()
+        #for enemy in get_hit_list(self.rect, enemies):
+            #if enemy != self:
+                #self.turn_back()
+                #return
+        #if len(get_hit_list(self.rect, [player])) != 0:
+            #self.align_collision(player)
+            #return
         if len(self.pathToPlayer) != 0:
             if self.rect.x == self.pathToPlayer[0][0] and self.rect.y == self.pathToPlayer[0][1]:
                 self.pathToPlayer.pop(0)
@@ -224,7 +243,8 @@ class Enemy(Tank):
     def die(self):
         enemies.remove(self)
 
-    def find_path(self, path_point):
+    def find_path(self, path_point, target):
+        global protecting_blocks
         point = (self.rect.x - self.rect.x % 16, self.rect.y - self.rect.y % 16)
         path_point = (path_point[0] - path_point[0] % 16, path_point[1] - path_point[1] % 16)
         rect = pygame.Rect(self.rect.x, self.rect.y, 16, 16)
@@ -241,7 +261,15 @@ class Enemy(Tank):
                         rect.x, rect.y = moved_point
                         if dx != 0 and dy != 0 or moved_point in paths.keys():
                             continue
-                        if not len(get_hit_list(rect, self.level.map)):
+                        flag = 0
+                        for tile in get_hit_list(rect, self.level.map):
+                            if target == "Castle":
+                                if tile.type != GRASS and (tile.rect.x, tile.rect.y) not in protecting_blocks:
+                                    flag = 1
+                            if target == "Player":
+                                if tile.type != GRASS:
+                                    flag = 1
+                        if not len(get_hit_list(rect, self.level.map)) or flag == 0:
                             points.put(moved_point)
                             paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
         self.pathToPlayer = self.get_point(paths[path_point])
@@ -370,18 +398,35 @@ class Bonus:
             bonuses.remove(self)
 
 
-bullets = []
+def create_level():
+    global current_level, player, bullets, enemies, bonuses, castle
+    current_level = Level(game_map)
+    player = Player(3 / 4, 0, (64, 208), current_level)
+    bullets = []
+    player = Player(3 / 4, 0, (64, 208), current_level)
+    enemies = [Enemy(1 / 2, 0, (80, 32), current_level),
+               Enemy(1 / 2, 0, (96, 96), current_level),
+               Enemy(1 / 2, 0, (112, 64), current_level)]
+    bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
+               Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
+    castle = Castle()
+
+
 current_level = Level(game_map)
+player = Player(3 / 4, 0, (64, 208), current_level)
+bullets = []
 player = Player(3 / 4, 0, (64, 208), current_level)
 enemies = [Enemy(1 / 2, 0, (80, 32), current_level),
            Enemy(1 / 2, 0, (96, 96), current_level),
            Enemy(1 / 2, 0, (112, 64), current_level)]
 bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
            Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
-
 castle = Castle()
+protecting_blocks = (88, 200), (88, 208), (88, 216), (96, 200), (104, 200), (112, 200), (112, 208), (112, 216)
+
 
 main_menu()
+
 
 while True:
     DISPLAY.fill((0, 0, 0))
@@ -392,7 +437,7 @@ while True:
         if randrange(150) == 0:
             enemy.fire()
         if randrange(150) == 0:
-            enemy.find_path((player.rect.x, player.rect.y))
+            enemy.find_path((castle.rect.x, castle.rect.y), "Castle")
 
     for bullet in bullets:
         draw(bullet)
@@ -425,6 +470,7 @@ while True:
                 player.pressed_keys[DIRECTION_DOWN] = True
             if event.key == K_ESCAPE:
                 main_menu()
+                create_level()
             if event.key == K_SPACE:
                 player.fire()
         if event.type == KEYUP:
