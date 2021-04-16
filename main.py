@@ -452,7 +452,17 @@ while True:
 
     player.move()
     for enemy in enemies:
-        enemy.move_to_player()
+        move = 0
+        for tile in get_hit_list(enemy.rect, enemy.level.map):
+            if (tile.rect.x, tile.rect.y) in protecting_blocks:
+                move = 1
+        if len(get_hit_list(enemy.rect, [castle])) != 0:
+            move = 1
+        if move == 1:
+            enemy.speed = 0
+        else:
+            enemy.speed = 1/2
+            enemy.move_to_player()
     for bullet in bullets[:]:
         bullet.fly()
 
