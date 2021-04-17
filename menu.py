@@ -16,7 +16,7 @@ def draw_text(text, font, color, surface):
 def main_menu():
     click = False
     screen.fill((0, 0, 0))
-    while True:
+    while 1:
         draw_text('Battle city', font, (160, 54, 35), screen)
         text = font.render('Play', True, (255, 255, 255), (0, 0, 0))
         textRect = text.get_rect()
