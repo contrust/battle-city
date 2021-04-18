@@ -85,11 +85,15 @@ class Castle:
 
     def die(self):
         self.image = self.images[1]
-        main_menu()
+        main_menu(player.score, True)
 
 
 class Tank:
-    def __init__(self, kind = 0, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+    def __init__(self, kind=0, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+        self.images = [SPRITES.subsurface((0, 0, 16, 16)), SPRITES.subsurface((0, 16, 16, 16)),
+                       SPRITES.subsurface((0, 32, 16, 16)), SPRITES.subsurface((0, 48, 16, 16)),
+                       SPRITES.subsurface((0, 64, 16, 16)), SPRITES.subsurface((0, 80, 16, 16)),
+                       SPRITES.subsurface((0, 96, 16, 16)), SPRITES.subsurface((0, 112, 16, 16))]
         self.x = position[0]
         self.y = position[1]
         self.kind = kind
@@ -99,7 +103,7 @@ class Tank:
         else:
             self.health = 1
             self.bullet_type = 0
-        self.image = SPRITES.subsurface((0, 0, 16, 16))
+        self.image = self.images[kind]
         if self.kind == 1:
             self.speed = speed * 2
         else:
@@ -167,6 +171,7 @@ class Player(Tank):
     def __init__(self, kind, speed=0.75, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, kind, speed, direction, position, level)
         self.pressed_keys = [False] * 4
+        self.score = 0
 
     def move(self):
         for direction in range(4):
@@ -194,7 +199,7 @@ class Player(Tank):
                 self.align_collision(c)
 
     def die(self):
-        main_menu()
+        main_menu(player.score, True)
 
 
 class Enemy(Tank):
@@ -287,6 +292,7 @@ class Enemy(Tank):
         return a[::-1]
 
     def die(self):
+        player.score += 1
         enemies.remove(self)
 
 
