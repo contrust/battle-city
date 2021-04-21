@@ -86,6 +86,7 @@ class Castle:
     def die(self):
         self.image = self.images[1]
         main_menu(player.score, True)
+        create_level()
 
 
 class Tank:
@@ -200,6 +201,7 @@ class Player(Tank):
 
     def die(self):
         main_menu(player.score, True)
+        create_level()
 
 
 class Enemy(Tank):
@@ -209,22 +211,25 @@ class Enemy(Tank):
         Tank.__init__(self, kind, speed, direction, position, level)
         self.pathToPlayer = []
         self.is_moving_to_player = False
+        self.is_moving_to_castle = False
 
     def move(self):
         self.image = TANKS_IMAGES[1][self.kind][self.direction]
         if not self.on_map():
             self.return_on_map()
             self.direction = randrange(4)
+        for tile in get_hit_list(self.rect, [player]):
+            self.align_collision(tile)
+            self.direction = randrange(4)
+            self.is_moving_to_player = False
+            self.is_moving_to_castle = False
         for tile in get_hit_list(self.rect, self.level.map):
             if tile.type != GRASS:
                 self.align_collision(tile)
                 self.direction = randrange(4)
                 self.is_moving_to_player = False
+                self.is_moving_to_castle = False
                 break
-        for tile in get_hit_list(self.rect, [player]):
-                self.align_collision(tile)
-                self.direction = randrange(4)
-                self.is_moving_to_player = False
         for bonus in get_hit_list(self.rect, bonuses):
             bonus.die()
         for enemy in get_hit_list(self.rect, enemies):
@@ -232,9 +237,15 @@ class Enemy(Tank):
                 self.align_collision(enemy)
                 self.turn_back()
                 self.is_moving_to_player = False
+                self.is_moving_to_castle = False
         if self.is_moving_to_player:
+            print(1)
             self.get_direction_to_player()
+        if self.is_moving_to_castle:
+            print(2)
+            self.get_direction_to_castle()
         self.make_step()
+        self.speed = 1/2
 
     def get_direction_to_player(self):
         if len(self.pathToPlayer) != 0:
@@ -251,9 +262,26 @@ class Enemy(Tank):
             if change[1] < 0:
                 self.direction = DIRECTION_UP
         else:
-            self.find_path((player.rect.x, player.rect.y))
+            self.find_path((player.rect.x, player.rect.y), "Player", current_level)
 
-    def find_path(self, path_point):
+    def get_direction_to_castle(self):
+        if len(self.pathToPlayer) != 0:
+            if self.rect.x == self.pathToPlayer[0][0] and self.rect.y == self.pathToPlayer[0][1]:
+                self.pathToPlayer.pop(0)
+        if len(self.pathToPlayer) != 0:
+            change = (self.pathToPlayer[0][0] - self.rect.x, self.pathToPlayer[0][1] - self.rect.y)
+            if change[0] > 0:
+                self.direction = DIRECTION_RIGHT
+            if change[0] < 0:
+                self.direction = DIRECTION_LEFT
+            if change[1] > 0:
+                self.direction = DIRECTION_DOWN
+            if change[1] < 0:
+                self.direction = DIRECTION_UP
+        else:
+            self.find_path((96, 208), "Castle", current_level)
+
+    def find_path(self, path_point, target, level):
         self.pathToPlayer = []
         start_point = SinglyLinkedList((self.rect.x, self.rect.y))
         point = (self.rect.x - self.rect.x % 8, self.rect.y - self.rect.y % 8)
@@ -272,16 +300,30 @@ class Enemy(Tank):
                         rect.x, rect.y = moved_point
                         if dx != 0 and dy != 0 or moved_point in paths.keys():
                             continue
-                        for entity in get_hit_list(rect, self.level.map):
-                            if entity.type != GRASS:
-                                break
-                        else:
-                            points.put(moved_point)
-                            paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
-                            if path_point == moved_point:
-                                self.pathToPlayer = self.get_point(paths[path_point])
-                                self.is_moving_to_player = True
-                                return
+                        if target == "Player":
+                            for entity in get_hit_list(rect, self.level.map):
+                                if entity.type != GRASS:
+                                    break
+                            else:
+                                points.put(moved_point)
+                                paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
+                                if path_point == moved_point:
+                                    self.pathToPlayer = self.get_point(paths[path_point])
+                                    self.is_moving_to_player = True
+                                    self.is_moving_to_castle = False
+                                    return
+                        if target == "Castle":
+                            for entity in get_hit_list(rect, self.level.map):
+                                if entity.type != GRASS and entity in level.protecting_blocks is False:
+                                    break
+                            else:
+                                points.put(moved_point)
+                                paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
+                                if path_point == moved_point:
+                                    self.pathToPlayer = self.get_point(paths[path_point])
+                                    self.is_moving_to_player = False
+                                    self.is_moving_to_castle = True
+                                    return
 
 
     def get_point(self, path_point):
@@ -389,21 +431,24 @@ class Bonus:
             bonuses.remove(self)
 
 
-bullets = []
-current_level = Level(game_map)
-player = Player(3, 3 / 4, 0, (64, 208), current_level)
-enemies = []
-bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
-           Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
+def create_level():
+    global bullets, current_level, player, enemies, bonuses, castle, goal
+    bullets = []
+    current_level = Level(game_map)
+    player = Player(3, 3 / 4, 0, (64, 208), current_level)
+    enemies = []
+    bonuses = [Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))),
+               Bonus(GRENADE, (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)))]
+    castle = Castle()
+    goal = 1
 
-castle = Castle()
 
+create_level()
 main_menu()
 
 while 1:
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(player.image, (player.rect.x, player.rect.y))
-
     player.move()
 
     if not randrange(400):
@@ -412,8 +457,18 @@ while 1:
     for enemy in enemies:
         draw(enemy)
         if not randrange(180):
-            if not enemy.is_moving_to_player:
-                enemy.find_path((player.rect.x, player.rect.y))
+            if enemy.is_moving_to_castle:
+                enemy.move()
+                continue
+            if player.score >= goal and not enemy.is_moving_to_castle:
+                enemy.is_moving_to_castle = True
+                enemy.is_moving_to_player = False
+                enemy.find_path((96, 208), "Castle", current_level)
+            if player.score < goal:
+                if not enemy.is_moving_to_player:
+                    enemy.is_moving_to_player = True
+                    enemy.is_moving_to_castle = False
+                    enemy.find_path((player.rect.x, player.rect.y), "Player", current_level)
         enemy.move()
         if not randrange(50):
             enemy.fire()
@@ -438,25 +493,34 @@ while 1:
         if event.type == KEYDOWN:
             if event.key == K_RIGHT:
                 player.pressed_keys[DIRECTION_RIGHT] = True
+                player.is_moving = True
             if event.key == K_LEFT:
                 player.pressed_keys[DIRECTION_LEFT] = True
+                player.is_moving = True
             if event.key == K_UP:
                 player.pressed_keys[DIRECTION_UP] = True
+                player.is_moving = True
             if event.key == K_DOWN:
                 player.pressed_keys[DIRECTION_DOWN] = True
+                player.is_moving = True
             if event.key == K_ESCAPE:
                 main_menu()
+                create_level()
             if event.key == K_SPACE:
                 player.fire()
         if event.type == KEYUP:
             if event.key == K_RIGHT:
                 player.pressed_keys[DIRECTION_RIGHT] = False
+                player.is_moving = False
             if event.key == K_LEFT:
                 player.pressed_keys[DIRECTION_LEFT] = False
+                player.is_moving = False
             if event.key == K_UP:
                 player.pressed_keys[DIRECTION_UP] = False
+                player.is_moving = False
             if event.key == K_DOWN:
                 player.pressed_keys[DIRECTION_DOWN] = False
+                player.is_moving = False
 
     surf = pygame.transform.scale(DISPLAY, WINDOW_SIZE)
     SCREEN.blit(surf, (0, 0))
