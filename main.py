@@ -190,6 +190,15 @@ class Player(Tank):
                 if tile.type != GRASS:
                     self.align_collision(tile)
             for enemy in get_hit_list(self.rect, enemies):
+                enemy.speed = 0
+                if player.direction == 0:
+                    enemy.direction = 1
+                if player.direction == 1:
+                    enemy.direction = 0
+                if player.direction == 2:
+                    enemy.direction = 3
+                if player.direction == 3:
+                    enemy.direction = 2
                 self.align_collision(enemy)
             for bonus in get_hit_list(self.rect, bonuses):
                 if bonus.type == GRENADE:
@@ -239,15 +248,13 @@ class Enemy(Tank):
                 self.is_moving_to_player = False
                 self.is_moving_to_castle = False
         if self.is_moving_to_player:
-            print(1)
-            self.get_direction_to_player()
+            self.get_direction_to_target("Player")
         if self.is_moving_to_castle:
-            print(2)
-            self.get_direction_to_castle()
+            self.get_direction_to_target("Castle")
         self.make_step()
         self.speed = 1/2
 
-    def get_direction_to_player(self):
+    def get_direction_to_target(self, target):
         if len(self.pathToPlayer) != 0:
             if self.rect.x == self.pathToPlayer[0][0] and self.rect.y == self.pathToPlayer[0][1]:
                 self.pathToPlayer.pop(0)
@@ -262,24 +269,8 @@ class Enemy(Tank):
             if change[1] < 0:
                 self.direction = DIRECTION_UP
         else:
-            self.find_path((player.rect.x, player.rect.y), "Player", current_level)
+            self.find_path((player.rect.x, player.rect.y), target, current_level)
 
-    def get_direction_to_castle(self):
-        if len(self.pathToPlayer) != 0:
-            if self.rect.x == self.pathToPlayer[0][0] and self.rect.y == self.pathToPlayer[0][1]:
-                self.pathToPlayer.pop(0)
-        if len(self.pathToPlayer) != 0:
-            change = (self.pathToPlayer[0][0] - self.rect.x, self.pathToPlayer[0][1] - self.rect.y)
-            if change[0] > 0:
-                self.direction = DIRECTION_RIGHT
-            if change[0] < 0:
-                self.direction = DIRECTION_LEFT
-            if change[1] > 0:
-                self.direction = DIRECTION_DOWN
-            if change[1] < 0:
-                self.direction = DIRECTION_UP
-        else:
-            self.find_path((96, 208), "Castle", current_level)
 
     def find_path(self, path_point, target, level):
         self.pathToPlayer = []
@@ -493,16 +484,12 @@ while 1:
         if event.type == KEYDOWN:
             if event.key == K_RIGHT:
                 player.pressed_keys[DIRECTION_RIGHT] = True
-                player.is_moving = True
             if event.key == K_LEFT:
                 player.pressed_keys[DIRECTION_LEFT] = True
-                player.is_moving = True
             if event.key == K_UP:
                 player.pressed_keys[DIRECTION_UP] = True
-                player.is_moving = True
             if event.key == K_DOWN:
                 player.pressed_keys[DIRECTION_DOWN] = True
-                player.is_moving = True
             if event.key == K_ESCAPE:
                 main_menu()
                 create_level()
@@ -511,16 +498,12 @@ while 1:
         if event.type == KEYUP:
             if event.key == K_RIGHT:
                 player.pressed_keys[DIRECTION_RIGHT] = False
-                player.is_moving = False
             if event.key == K_LEFT:
                 player.pressed_keys[DIRECTION_LEFT] = False
-                player.is_moving = False
             if event.key == K_UP:
                 player.pressed_keys[DIRECTION_UP] = False
-                player.is_moving = False
             if event.key == K_DOWN:
                 player.pressed_keys[DIRECTION_DOWN] = False
-                player.is_moving = False
 
     surf = pygame.transform.scale(DISPLAY, WINDOW_SIZE)
     SCREEN.blit(surf, (0, 0))
