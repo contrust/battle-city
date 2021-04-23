@@ -278,8 +278,7 @@ class Enemy(Tank):
             if change[1] < 0:
                 self.direction = DIRECTION_UP
         else:
-            self.find_path((player.rect.x, player.rect.y), target, current_level)
-
+            self.find_path((player.rect.x, player.rect.y))
 
     def find_path(self, path_point, target, level):
         self.pathToPlayer = []
