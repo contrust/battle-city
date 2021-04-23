@@ -10,13 +10,15 @@ class Player(Tank):
         Tank.__init__(self, 0, kind, speed, direction, position, level)
         self.pressed_keys = [False] * 4
         self.is_alive = True
+        self.lifes = 3
+        self.max_lifes = 4
         self.score = 0
 
     def move(self):
+        self.image = TANKS_IMAGES[0][self.kind][self.direction]
         for direction in range(4):
             if self.pressed_keys[direction]:
                 self.direction = direction
-                self.image = TANKS_IMAGES[0][self.kind][direction]
                 self.moving_state = True
                 break
         else:
@@ -49,10 +51,15 @@ class Player(Tank):
                 if bonus.type == SHOVEL:
                     for protecting_block in self.level.protecting_blocks:
                         self.level.map.append(Tile(BETON, protecting_block))
+                if bonus.type == TANK_BONUS:
+                    if self.lifes < self.max_lifes:
+                        self.lifes += 1
                 bonus.die()
             for c in get_hit_list(self.rect, [self.level.castle]):
                 self.align_collision(c)
 
     def die(self):
         self.is_alive = False
-        main_menu(self.score, True)
+        self.lifes -= 1
+        if not self.lifes:
+            main_menu(self.score, True)

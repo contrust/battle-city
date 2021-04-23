@@ -21,8 +21,16 @@ current_level = Level()
 main_menu()
 
 while 1:
-    if not (current_level.castle.is_alive and current_level.player.is_alive):
+    if not current_level.castle.is_alive:
         current_level = Level()
+    if not current_level.player.is_alive:
+        if current_level.player.lifes:
+            current_level.player.x, current_level.player.y, current_level.player.rect.topleft = 64, 208, (64, 208)
+            current_level.player.kind = 0
+            current_level.player.get_type()
+            current_level.player.is_alive = True
+        else:
+            current_level = Level()
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(current_level.player.image, (current_level.player.rect.x, current_level.player.rect.y))
     current_level.player.move()
