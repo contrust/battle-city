@@ -29,22 +29,14 @@ while 1:
 
     if not randrange(250):
         if len(current_level.enemies) < 4:
-            current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), current_level))
+            current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), randrange(2), current_level))
     for enemy in current_level.enemies:
         draw(enemy)
         if not randrange(140):
-            if enemy.is_moving_to_castle:
-                enemy.move()
-                continue
-            if current_level.player.score >= current_level.goal and not enemy.is_moving_to_castle:
-                enemy.is_moving_to_castle = True
-                enemy.is_moving_to_player = False
-                enemy.find_path((96, 208), "Castle", current_level)
-            if current_level.player.score < current_level.goal:
-                if not enemy.is_moving_to_player:
-                    enemy.is_moving_to_player = True
-                    enemy.is_moving_to_castle = False
-                    enemy.find_path((current_level.player.rect.x, current_level.player.rect.y), "Player", current_level)
+            if enemy.target == 0:
+                enemy.find_path((96, 208), 1, current_level)
+            else:
+                enemy.find_path((current_level.player.rect.x, current_level.player.rect.y), 0, current_level)
         enemy.move()
         if not randrange(50):
             enemy.fire()

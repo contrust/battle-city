@@ -6,6 +6,7 @@ from random import randrange
 from queue import Queue
 from settings import DISPLAY
 from tile import BRICK, GRASS, BETON, ICE, WATER
+(PLAYER, CASTLE) = range(2)
 
 class SinglyLinkedList:
     def __init__(self, value, previous=None):
@@ -13,11 +14,11 @@ class SinglyLinkedList:
         self.previous = previous
 
 class Enemy(Tank):
-    def __init__(self, kind, speed=2, direction=DIRECTION_UP, position=(50, 50), level=None):
+    def __init__(self, kind, speed=2, direction=DIRECTION_UP, position=(50, 50), target=0, level=None):
         Tank.__init__(self, 1, kind, speed, direction, position, level)
         self.pathToPlayer = []
-        self.is_moving_to_player = False
-        self.is_moving_to_castle = False
+        self.target = target
+        self.is_moving_to_target = False
 
     def move(self):
         self.image = TANKS_IMAGES[1][self.kind][self.direction]
@@ -34,28 +35,25 @@ class Enemy(Tank):
                 self.direction = 3
             if tile.direction == 3:
                 self.direction = 2
-            self.is_moving_to_player = False
-            self.is_moving_to_castle = False
+            self.is_moving_to_target = False
             self.align_collision(tile)
         for tile in get_hit_list(self.rect, self.level.map):
             if tile.type != GRASS:
                 self.align_collision(tile)
                 self.direction = randrange(4)
-                self.is_moving_to_player = False
-                self.is_moving_to_castle = False
+                self.is_moving_to_target = False
                 break
         for bonus in get_hit_list(self.rect, self.level.bonuses):
             bonus.die()
         for enemy in get_hit_list(self.rect, self.level.enemies):
             if enemy != self:
                 self.align_collision(enemy)
-                self.turn_back()
-                self.is_moving_to_player = False
-                self.is_moving_to_castle = False
-        if self.is_moving_to_player:
-            self.get_direction_to_target("Player")
-        if self.is_moving_to_castle:
-            self.get_direction_to_target("Castle")
+                self.direction = randrange(4)
+                self.is_moving_to_target = False
+        if self.is_moving_to_target and self.target == 0:
+            self.get_direction_to_target(PLAYER)
+        if self.is_moving_to_target and self.target == 1:
+            self.get_direction_to_target(CASTLE)
         self.make_step()
         self.speed = 1/2
 
@@ -96,7 +94,7 @@ class Enemy(Tank):
                         rect.x, rect.y = moved_point
                         if dx != 0 and dy != 0 or moved_point in paths.keys():
                             continue
-                        if target == "Player":
+                        if target == PLAYER:
                             for entity in get_hit_list(rect, self.level.map):
                                 if entity.type != GRASS:
                                     break
@@ -105,10 +103,9 @@ class Enemy(Tank):
                                 paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
                                 if path_point == moved_point:
                                     self.pathToPlayer = self.get_point(paths[path_point])
-                                    self.is_moving_to_player = True
-                                    self.is_moving_to_castle = False
+                                    self.is_moving_to_target = True
                                     return
-                        if target == "Castle":
+                        if target == CASTLE:
                             for entity in get_hit_list(rect, self.level.map):
                                 if entity.type != GRASS and entity in level.protecting_blocks is False:
                                     break
@@ -117,8 +114,7 @@ class Enemy(Tank):
                                 paths[moved_point] = SinglyLinkedList(moved_point, paths[point])
                                 if path_point == moved_point:
                                     self.pathToPlayer = self.get_point(paths[path_point])
-                                    self.is_moving_to_player = False
-                                    self.is_moving_to_castle = True
+                                    self.is_moving_to_target = True
                                     return
 
     def get_point(self, path_point):
