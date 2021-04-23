@@ -9,6 +9,7 @@ class Player(Tank):
     def __init__(self, kind, speed=0.75, direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, 0, kind, speed, direction, position, level)
         self.pressed_keys = [False] * 4
+        self.is_alive = True
         self.score = 0
 
     def move(self):
@@ -53,5 +54,5 @@ class Player(Tank):
                 self.align_collision(c)
 
     def die(self):
-        self.level.player = None
+        self.is_alive = False
         main_menu(self.score, True)

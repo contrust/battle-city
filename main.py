@@ -21,12 +21,10 @@ current_level = Level()
 main_menu()
 
 while 1:
-    if current_level.castle is None or current_level.player is None:
-        print("suka")
+    if not (current_level.castle.is_alive and current_level.player.is_alive):
         current_level = Level()
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(current_level.player.image, (current_level.player.rect.x, current_level.player.rect.y))
-    draw(current_level.castle)
     current_level.player.move()
 
     if not randrange(250):
@@ -62,6 +60,8 @@ while 1:
 
     for bullet in current_level.bullets[:]:
         bullet.fly()
+
+    draw(current_level.castle)
 
     for event in pygame.event.get():
         if event.type == QUIT:
