@@ -278,7 +278,8 @@ class Enemy(Tank):
             if change[1] < 0:
                 self.direction = DIRECTION_UP
         else:
-            self.find_path((player.rect.x, player.rect.y))
+            self.find_path((player.rect.x, player.rect.y), target, current_level)
+
 
     def find_path(self, path_point, target, level):
         self.pathToPlayer = []
@@ -334,9 +335,6 @@ class Enemy(Tank):
 
     def die(self):
         player.score += 1
-        if self in enemies:
-            if not randrange(6):
-                bonuses.append(Bonus(randrange(6), (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15))))
         enemies.remove(self)
 
 
