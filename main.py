@@ -94,7 +94,8 @@ while 1:
                 current_level.player.pressed_keys[DIRECTION_DOWN] = True
             if event.key == K_ESCAPE:
                 main_menu()
-                create_level()
+                level_number = 1
+                current_level = Level(1)
             if event.key == K_SPACE:
                 current_level.player.fire()
         if event.type == KEYUP:
