@@ -2,7 +2,7 @@ import pygame
 from settings import get_hit_list
 from tank import Tank, DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT
 from sprites import TANKS_IMAGES
-from random import randrange
+from random import randrange, choice
 from queue import Queue
 from settings import DISPLAY
 from tile import BRICK, GRASS, BETON, ICE, WATER
@@ -43,6 +43,10 @@ class Enemy(Tank):
                 self.direction = randrange(4)
                 self.is_moving_to_target = False
                 break
+        for tile in get_hit_list(self.rect, [self.level.castle]):
+            self.align_collision(tile)
+            self.direction = randrange(4)
+            self.is_moving_to_target = False
         for bonus in get_hit_list(self.rect, self.level.bonuses):
             bonus.die()
         for enemy in get_hit_list(self.rect, self.level.enemies):
@@ -130,4 +134,3 @@ class Enemy(Tank):
     def die(self):
         self.level.player.score[self.kind] += 1
         self.level.enemies.remove(self)
-
