@@ -17,12 +17,13 @@ pygame.display.set_caption('Battle City')
 def draw(entity):
     DISPLAY.blit(entity.image, (entity.rect.x, entity.rect.y))
 
-current_level = Level()
+level_number = 2
+current_level = Level(level_number)
 main_menu()
 
 while 1:
     if not current_level.castle.is_alive:
-        current_level = Level()
+        current_level = Level(1)
     if not current_level.player.is_alive:
         if current_level.player.lifes:
             current_level.player.x, current_level.player.y, current_level.player.rect.topleft = 64, 208, (64, 208)
@@ -30,7 +31,7 @@ while 1:
             current_level.player.get_type()
             current_level.player.is_alive = True
         else:
-            current_level = Level()
+            current_level = Level(1)
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(current_level.player.image, (current_level.player.rect.x, current_level.player.rect.y))
     current_level.player.move()
