@@ -26,8 +26,16 @@ class Tank:
         else:
             self.health = 1
             self.bullet_type = 0
-        if self.kind == 1:
-            self.speed = self.speed * 2
+        if self.kind > 0:
+            if self.role == 0:
+                self.speed = 1.5
+            else:
+                self.speed = 1
+        else:
+            if self.role == 0:
+                self.speed = 0.75
+            else:
+                self.speed = 0.5
         if self.kind == 2 or self.kind == 3:
             self.max_bullets = 2
         else:
