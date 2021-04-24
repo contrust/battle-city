@@ -125,6 +125,6 @@ class Enemy(Tank):
         return a[::-1]
 
     def die(self):
-        self.level.player.score += 1
+        self.level.player.score[self.kind] += 1
         self.level.enemies.remove(self)
 

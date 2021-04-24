@@ -14,4 +14,4 @@ class Castle:
     def die(self):
         self.image = self.images[1]
         self.is_alive = False
-        main_menu(self.level.player.score, True)
+        main_menu(self.level.player.score, "Game Over")

@@ -12,7 +12,7 @@ class Player(Tank):
         self.is_alive = True
         self.lifes = 3
         self.max_lifes = 4
-        self.score = 0
+        self.score = [0, 0, 0, 0]
 
     def move(self):
         self.image = TANKS_IMAGES[0][self.kind][self.direction]
@@ -58,8 +58,14 @@ class Player(Tank):
             for c in get_hit_list(self.rect, [self.level.castle]):
                 self.align_collision(c)
 
+    def to_start(self):
+        self.x, self.y, self.rect.topleft = 64, 208, (64, 208)
+        self.pressed_keys = [False] * 4
+        self.direction = DIRECTION_UP
+
     def die(self):
         self.is_alive = False
         self.lifes -= 1
+        self.to_start()
         if not self.lifes:
-            main_menu(self.score, True)
+            main_menu(self.score, "Game Over")

@@ -31,6 +31,8 @@ class Level:
             self.player = Player(0, 3 / 4, 0, (64, 208), self)
         else:
             self.player = player
+            self.player.is_alive = True
+            self.player.level = self
         self.bullets = []
         self.enemies = []
         self.bonuses = [Bonus(randrange(6), (randrange(DISPLAY.get_width() - 16), randrange(DISPLAY.get_height() - 15)), self),

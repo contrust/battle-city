@@ -17,21 +17,34 @@ pygame.display.set_caption('Battle City')
 def draw(entity):
     DISPLAY.blit(entity.image, (entity.rect.x, entity.rect.y))
 
-level_number = 2
+level_number = 1
 current_level = Level(level_number)
 main_menu()
 
 while 1:
+    if sum(current_level.player.score) >= 10:
+        if level_number == 4:
+            main_menu(current_level.player.score, "You won")
+            main_menu()
+            level_number = 1
+            current_level = Level(1)
+        else:
+            main_menu(current_level.player.score, "Victory")
+            level_number += 1
+            current_level.player.score = [0, 0, 0, 0]
+            current_level.player.to_start()
+            current_level = Level(level_number, current_level.player)
     if not current_level.castle.is_alive:
         current_level = Level(1)
+        level_number = 1
     if not current_level.player.is_alive:
         if current_level.player.lifes:
-            current_level.player.x, current_level.player.y, current_level.player.rect.topleft = 64, 208, (64, 208)
             current_level.player.kind = 0
             current_level.player.get_type()
             current_level.player.is_alive = True
         else:
             current_level = Level(1)
+            level_number = 1
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(current_level.player.image, (current_level.player.rect.x, current_level.player.rect.y))
     current_level.player.move()
