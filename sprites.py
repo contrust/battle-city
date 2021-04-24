@@ -1,6 +1,6 @@
 import pygame
 SPRITES = pygame.image.load('sprite.png').convert_alpha()
-BOLD_SPRITES = pygame.image.load('sprite1.png')
+BOLD_SPRITES = pygame.image.load('sprite.png')
 BULLET_IMAGES = [SPRITES.subsurface((322, 102, 4, 4)),
                        SPRITES.subsurface((338, 102, 4, 4)),
                        SPRITES.subsurface((346, 102, 4, 4)),

@@ -30,16 +30,9 @@ class Player(Tank):
                 if tile.type != GRASS:
                     self.align_collision(tile)
             for enemy in get_hit_list(self.rect, self.level.enemies):
-                enemy.speed = 0
-                if self.direction == 0:
-                    enemy.direction = 1
-                if self.direction == 1:
-                    enemy.direction = 0
-                if self.direction == 2:
-                    enemy.direction = 3
-                if self.direction == 3:
-                    enemy.direction = 2
-                self.align_collision(enemy)
+                self.turn_back()
+                self.make_step()
+                self.turn_back()
             for bonus in get_hit_list(self.rect, self.level.bonuses):
                 if bonus.type == GRENADE:
                     for enemy in self.level.enemies[:]:

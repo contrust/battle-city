@@ -21,22 +21,20 @@ class Enemy(Tank):
         self.is_moving_to_target = False
 
     def move(self):
+        self.speed = 1/2
         self.image = TANKS_IMAGES[1][self.kind][self.direction]
         if not self.on_map():
             self.return_on_map()
             self.direction = randrange(4)
-        for tile in get_hit_list(self.rect, [self.level.player]):
-            self.speed = 0
-            if tile.direction == 0:
-                self.direction = 1
-            if tile.direction == 1:
-                self.direction = 0
-            if tile.direction == 2:
-                self.direction = 3
-            if tile.direction == 3:
-                self.direction = 2
+        for player in get_hit_list(self.rect, [self.level.player]):
             self.is_moving_to_target = False
-            self.align_collision(tile)
+            if self.direction == 2 * (player.direction // 2) + (player.direction + 1) % 2:
+                self.turn_back()
+            else:
+                self.align_collision(player)
+                self.direction = randrange(4)
+            self.make_step()
+            return
         for tile in get_hit_list(self.rect, self.level.map):
             if tile.type != GRASS:
                 self.align_collision(tile)
@@ -47,15 +45,19 @@ class Enemy(Tank):
             bonus.die()
         for enemy in get_hit_list(self.rect, self.level.enemies):
             if enemy != self:
-                self.align_collision(enemy)
-                self.direction = randrange(4)
                 self.is_moving_to_target = False
+                if self.direction == 2 * (enemy.direction // 2) + (enemy.direction + 1) % 2:
+                    self.turn_back()
+                else:
+                    self.align_collision(enemy)
+                    self.direction = randrange(4)
+                self.make_step()
+                return
         if self.is_moving_to_target and self.target == 0:
             self.get_direction_to_target(PLAYER)
         if self.is_moving_to_target and self.target == 1:
             self.get_direction_to_target(CASTLE)
         self.make_step()
-        self.speed = 1/2
 
     def get_direction_to_target(self, target):
         if len(self.pathToPlayer) != 0:
