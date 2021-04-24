@@ -51,11 +51,14 @@ while 1:
 
     if not randrange(250):
         if len(current_level.enemies) < 4:
-            current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), randrange(2), current_level))
+            if sum(current_level.player.score) + len(current_level.enemies) < 5:
+                current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 0, current_level))
+            else:
+                current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 1, current_level))
     for enemy in current_level.enemies:
         draw(enemy)
         if not randrange(140):
-            if enemy.target == 0:
+            if enemy.target == 1:
                 enemy.find_path((96, 208), 1, current_level)
             else:
                 enemy.find_path((current_level.player.rect.x, current_level.player.rect.y), 0, current_level)
