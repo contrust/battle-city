@@ -39,8 +39,8 @@ class Enemy(Tank):
                 self.direction = randrange(4)
                 self.is_moving_to_target = False
                 break
-        for tile in get_hit_list(self.rect, [self.level.castle]):
-            self.align_collision(tile)
+        for castle in get_hit_list(self.rect, [self.level.castle]):
+            self.align_collision(castle)
             self.direction = randrange(4)
             self.is_moving_to_target = False
         for bonus in get_hit_list(self.rect, self.level.bonuses):

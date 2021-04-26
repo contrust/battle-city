@@ -40,14 +40,14 @@ class Bullet:
                         enemy.die()
                     self.die()
             else:
-                for p in get_hit_list(self.rect, [self.level.player]):
-                    p.health -= 1
-                    if p.health == 0:
-                        p.die()
+                for player in get_hit_list(self.rect, [self.level.player]):
+                    player.health -= 1
+                    if player.health == 0:
+                        player.die()
                     self.die()
-            for c in get_hit_list(self.rect, [self.level.castle]):
+            for castle in get_hit_list(self.rect, [self.level.castle]):
                 self.die()
-                c.die()
+                castle.die()
             for bullet in get_hit_list(self.rect, self.level.bullets[:]):
                 if self != bullet and self.owner.role != bullet.owner.role:
                     self.die()

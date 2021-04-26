@@ -48,8 +48,8 @@ class Player(Tank):
                     if self.lifes < self.max_lifes:
                         self.lifes += 1
                 bonus.die()
-            for c in get_hit_list(self.rect, [self.level.castle]):
-                self.align_collision(c)
+            for castle in get_hit_list(self.rect, [self.level.castle]):
+                self.align_collision(castle)
 
     def to_start(self):
         self.x, self.y, self.rect.topleft = 64, 208, (64, 208)
