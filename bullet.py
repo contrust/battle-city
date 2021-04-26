@@ -49,7 +49,7 @@ class Bullet:
                 self.die()
                 c.die()
             for bullet in get_hit_list(self.rect, self.level.bullets[:]):
-                if self != bullet:
+                if self != bullet and self.owner.role != bullet.owner.role:
                     self.die()
                     bullet.die()
         else:
