@@ -26,14 +26,12 @@ class Enemy(Tank):
         if not self.on_map():
             self.return_on_map()
             self.direction = randrange(4)
+        self.make_step()
         for player in get_hit_list(self.rect, [self.level.player]):
             self.is_moving_to_target = False
-            if self.direction == 2 * (player.direction // 2) + (player.direction + 1) % 2:
-                self.turn_back()
-            else:
-                self.align_collision(player)
-                self.direction = randrange(4)
+            self.turn_back()
             self.make_step()
+            self.turn_back()
             return
         for tile in get_hit_list(self.rect, self.level.map):
             if tile.type != GRASS:
@@ -61,7 +59,6 @@ class Enemy(Tank):
             self.get_direction_to_target(PLAYER)
         if self.is_moving_to_target and self.target == 1:
             self.get_direction_to_target(CASTLE)
-        self.make_step()
 
     def get_direction_to_target(self, target):
         if len(self.pathToPlayer) != 0:

@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\maps"
   ],
-  "SelectedNode": "\\main.py",
+  "SelectedNode": "\\enemy.py",
   "PreviewInSolutionExplorer": false
 }
