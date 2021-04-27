@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# coding=utf-8
+
 import pygame
 from menu import main_menu
 from pygame.locals import *
