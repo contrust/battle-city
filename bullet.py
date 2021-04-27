@@ -3,8 +3,11 @@ import pygame
 from settings import DISPLAY, get_hit_list
 from tile import BRICK, GRASS, BETON, ICE, WATER
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
+
+
 class Bullet:
-    def __init__(self, kind, direction=DIRECTION_UP, position=None, owner=None, level=None):
+    def __init__(self, kind, direction=DIRECTION_UP,
+                 position=None, owner=None, level=None):
         self.x = position[0]
         self.y = position[1]
         self.speed = 2
@@ -16,7 +19,8 @@ class Bullet:
         self.level = level
 
     def fly(self):
-        if 0 < self.rect.x < DISPLAY.get_width() - self.image.get_width() and 0 < self.rect.y < DISPLAY.get_height() - self.image.get_height():
+        if (0 < self.rect.x < DISPLAY.get_width() - self.image.get_width() and
+           0 < self.rect.y < DISPLAY.get_height() - self.image.get_height()):
             if self.direction == DIRECTION_LEFT:
                 self.x -= self.speed
             if self.direction == DIRECTION_RIGHT:

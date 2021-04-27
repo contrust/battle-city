@@ -2,6 +2,7 @@ from sprites import BOLD_SPRITES
 import pygame
 (HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS) = range(6)
 
+
 class Bonus:
     def __init__(self, type, position, level):
         self.type = type

@@ -1,10 +1,11 @@
-import pygame, sys, threading
+import pygame
 from menu import main_menu
 from pygame.locals import *
 from random import randrange
 from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
 from sprites import SPRITES, BOLD_SPRITES, BULLET_IMAGES, TANKS_IMAGES
-from tank import Tank, BASIC, FAST, RAPID, ARMORED, DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT
+from tank import (Tank, BASIC, FAST, RAPID, ARMORED, DIRECTION_UP,
+                  DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT)
 from settings import WINDOW_SIZE, SCREEN, DISPLAY, get_hit_list
 from bullet import Bullet
 from enemy import Enemy
@@ -13,6 +14,7 @@ from level import Level
 CLOCK = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Battle City')
+
 
 def draw(entity):
     DISPLAY.blit(entity.image, (entity.rect.x, entity.rect.y))
@@ -46,22 +48,28 @@ while 1:
             current_level = Level(1)
             level_number = 1
     DISPLAY.fill((0, 0, 0))
-    DISPLAY.blit(current_level.player.image, (current_level.player.rect.x, current_level.player.rect.y))
+    DISPLAY.blit(current_level.player.image, current_level.player.rect.topleft)
     current_level.player.move()
 
     if not randrange(250):
         if len(current_level.enemies) < 4:
-            if sum(current_level.player.score) + len(current_level.enemies) < 5:
-                current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 0, current_level))
+            if (sum(current_level.player.score) +
+               len(current_level.enemies) < 5):
+                current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                   (96 * randrange(3), 0),
+                                                   0, current_level))
             else:
-                current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 1, current_level))
+                current_level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                   (96 * randrange(3), 0),
+                                                   1, current_level))
     for enemy in current_level.enemies:
         draw(enemy)
         if not randrange(140):
             if enemy.target == 1:
                 enemy.find_path((96, 208), 1, current_level)
             else:
-                enemy.find_path((current_level.player.rect.x, current_level.player.rect.y), 0, current_level)
+                enemy.find_path(current_level.player.rect.topleft,
+                                0, current_level)
         enemy.move()
         if not randrange(50):
             enemy.fire()

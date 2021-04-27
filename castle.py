@@ -2,6 +2,7 @@ from sprites import BOLD_SPRITES
 import pygame
 from menu import main_menu
 
+
 class Castle:
     def __init__(self, level=None):
         self.images = [BOLD_SPRITES.subsurface((304, 32, 16, 16)),

@@ -1,8 +1,9 @@
 import pygame
 from sprites import BOLD_SPRITES
 (BRICK, GRASS, BETON, ICE, WATER) = range(5)
+
+
 class Tile:
-    global BOLD_SPRITES
     def __init__(self, type, position):
         self.type = type
         self.images = [BOLD_SPRITES.subsurface((256, 0, 8, 8)),

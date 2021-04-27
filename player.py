@@ -1,12 +1,15 @@
-from tank import Tank, DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT
+from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
+                  DIRECTION_RIGHT, DIRECTION_LEFT)
 from settings import get_hit_list
 from sprites import TANKS_IMAGES
 from bonus import HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS
 from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
 from menu import main_menu
 
+
 class Player(Tank):
-    def __init__(self, kind, speed=0.75, direction=DIRECTION_UP, position=(50, 50), level=None):
+    def __init__(self, kind, speed=0.75,
+                 direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, 0, kind, speed, direction, position, level)
         self.pressed_keys = [False] * 4
         self.is_alive = True
