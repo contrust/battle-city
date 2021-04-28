@@ -25,7 +25,6 @@ class Enemy(Tank):
         self.is_moving_to_target = False
 
     def move(self):
-        self.speed = 1/2
         self.image = TANKS_IMAGES[1][self.kind][self.direction]
         if not self.on_map():
             self.return_on_map()
@@ -59,7 +58,6 @@ class Enemy(Tank):
                     self.align_collision(enemy)
                     self.direction = randrange(4)
                 self.make_step()
-                return
         if self.is_moving_to_target and self.target == 0:
             self.get_direction_to_target(PLAYER)
         if self.is_moving_to_target and self.target == 1:
@@ -125,7 +123,7 @@ class Enemy(Tank):
                         if target == CASTLE:
                             for entity in get_hit_list(rect, self.level.map):
                                 if (entity.type != GRASS and
-                                   entity in level.protecting_blocks is False):
+                                   entity.rect.topleft not in self.level.protecting_blocks):
                                     break
                             else:
                                 points.put(moved_point)
