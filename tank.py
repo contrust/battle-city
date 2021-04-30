@@ -46,6 +46,9 @@ class Tank:
 
     def fire(self):
         if self.max_bullets >= self.current_bullets > 0:
+            pygame.mixer.music.load('shot.mp3')
+            pygame.mixer.music.set_volume(0.05)
+            pygame.mixer.music.play()
             if self.direction == DIRECTION_UP:
                 self.level.bullets.append(Bullet(self.bullet_type,
                                                  self.direction,

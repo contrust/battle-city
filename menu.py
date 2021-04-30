@@ -79,6 +79,9 @@ def main_menu(score=None, status="Battle City"):
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return
         pygame.display.update()
         mainClock.tick(60)
 

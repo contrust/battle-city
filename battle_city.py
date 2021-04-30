@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
+import sys
 
 import pygame
 from menu import main_menu
@@ -29,11 +30,17 @@ main_menu()
 while 1:
     if sum(current_level.player.score) >= 10:
         if level_number == 4:
+            pygame.mixer.music.load('win_game.mp3')
+            pygame.mixer.music.set_volume(0.1)
+            pygame.mixer.music.play()
             main_menu(current_level.player.score, "You won")
             main_menu()
             level_number = 1
             current_level = Level(1)
         else:
+            pygame.mixer.music.load('next_level.mp3')
+            pygame.mixer.music.set_volume(0.1)
+            pygame.mixer.music.play()
             main_menu(current_level.player.score, "Victory")
             level_number += 1
             current_level.player.score = [0, 0, 0, 0]
@@ -94,6 +101,7 @@ while 1:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
+            sys.exit()
         if event.type == KEYDOWN:
             if event.key == K_RIGHT:
                 current_level.player.pressed_keys[DIRECTION_RIGHT] = True
