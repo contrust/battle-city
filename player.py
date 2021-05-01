@@ -62,14 +62,14 @@ class Player(Tank):
         self.direction = DIRECTION_UP
 
     def die(self):
-        pygame.mixer.music.load('tank_explosion.mp3')
+        pygame.mixer.music.load('sounds/tank_explosion.mp3')
         pygame.mixer.music.set_volume(0.05)
         pygame.mixer.music.play()
         self.is_alive = False
         self.lifes -= 1
         self.to_start()
         if not self.lifes:
-            pygame.mixer.music.load('game_over.mp3')
+            pygame.mixer.music.load('sounds/game_over.mp3')
             pygame.mixer.music.set_volume(0.1)
             pygame.mixer.music.play()
             main_menu(self.score, "Game Over")

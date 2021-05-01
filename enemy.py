@@ -143,7 +143,7 @@ class Enemy(Tank):
         return a[::-1]
 
     def die(self):
-        pygame.mixer.music.load('tank_explosion.mp3')
+        pygame.mixer.music.load('sounds/tank_explosion.mp3')
         pygame.mixer.music.set_volume(0.05)
         pygame.mixer.music.play()
         self.level.player.score[self.kind] += 1
