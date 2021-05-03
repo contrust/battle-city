@@ -23,6 +23,18 @@ pygame.display.set_caption('Battle City')
 def draw(entity):
     DISPLAY.blit(entity.image, (entity.rect.x, entity.rect.y))
 
+
+def win_game():
+    global level_number, current_level
+    pygame.mixer.music.load('sounds/win_game.mp3')
+    pygame.mixer.music.set_volume(0.1)
+    pygame.mixer.music.play()
+    main_menu(current_level.player.score, "You won")
+    main_menu()
+    level_number = 1
+    current_level = Level(1)
+
+
 level_number = 1
 current_level = Level(level_number)
 main_menu()
@@ -30,15 +42,9 @@ main_menu()
 while 1:
     if sum(current_level.player.score) >= 10:
         if level_number == 4:
-            pygame.mixer.music.load('win_game.mp3')
-            pygame.mixer.music.set_volume(0.1)
-            pygame.mixer.music.play()
-            main_menu(current_level.player.score, "You won")
-            main_menu()
-            level_number = 1
-            current_level = Level(1)
+            win_game()
         else:
-            pygame.mixer.music.load('next_level.mp3')
+            pygame.mixer.music.load('sounds/next_level.mp3')
             pygame.mixer.music.set_volume(0.1)
             pygame.mixer.music.play()
             main_menu(current_level.player.score, "Victory")
@@ -96,6 +102,19 @@ while 1:
     for bullet in current_level.bullets[:]:
         bullet.fly()
 
+    for explosion in current_level.explosions:
+        draw(explosion)
+        if explosion.type == 0:
+            explosion.image = explosion.images[explosion.stage // 2]
+            explosion.stage += 1
+            if explosion.stage == 8:
+                current_level.explosions.remove(explosion)
+        if explosion.type == 1:
+            explosion.image = explosion.images[explosion.stage // 3 + 4]
+            explosion.stage += 1
+            if explosion.stage == 9:
+                current_level.explosions.remove(explosion)
+
     draw(current_level.castle)
 
     for event in pygame.event.get():
@@ -117,6 +136,21 @@ while 1:
                 current_level = Level(1)
             if event.key == K_SPACE:
                 current_level.player.fire()
+            if event.key == K_F9:
+                for enemy in current_level.enemies[:]:
+                    enemy.die()
+            if event.key == K_F10:
+                if current_level.player.kind != 3:
+                    current_level.player.kind += 1
+            if event.key == K_F11:
+                for protecting_block in current_level.protecting_blocks:
+                    current_level.map.append(Tile(BETON, protecting_block))
+            if event.key == K_F12:
+                level_number += 1
+                if level_number == 5:
+                    win_game()
+                else:
+                    current_level = Level(level_number)
         if event.type == KEYUP:
             if event.key == K_RIGHT:
                 current_level.player.pressed_keys[DIRECTION_RIGHT] = False

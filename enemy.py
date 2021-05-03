@@ -7,6 +7,7 @@ from random import randrange, choice
 from queue import Queue
 from settings import DISPLAY
 from tile import BRICK, GRASS, BETON, ICE, WATER
+from explosion import Explosion
 (PLAYER, CASTLE) = range(2)
 
 
@@ -146,5 +147,6 @@ class Enemy(Tank):
         pygame.mixer.music.load('sounds/tank_explosion.mp3')
         pygame.mixer.music.set_volume(0.05)
         pygame.mixer.music.play()
+        self.level.explosions.append(Explosion((self.rect.x, self.rect.y), 1))
         self.level.player.score[self.kind] += 1
         self.level.enemies.remove(self)

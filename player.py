@@ -7,6 +7,7 @@ from sprites import TANKS_IMAGES
 from bonus import HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS
 from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
 from menu import main_menu
+from explosion import Explosion
 
 
 class Player(Tank):
@@ -65,6 +66,7 @@ class Player(Tank):
         pygame.mixer.music.load('sounds/tank_explosion.mp3')
         pygame.mixer.music.set_volume(0.05)
         pygame.mixer.music.play()
+        self.level.explosions.append(Explosion((self.rect.x, self.rect.y), 1))
         self.is_alive = False
         self.lifes -= 1
         self.to_start()

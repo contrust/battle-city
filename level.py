@@ -44,6 +44,7 @@ class Level:
             self.player.level = self
         self.bullets = []
         self.enemies = []
+        self.explosions = []
         self.bonuses = [Bonus(randrange(6),
                               (randrange(DISPLAY.get_width() - 16),
                                randrange(DISPLAY.get_height() - 15)), self),

@@ -2,6 +2,7 @@ from sprites import BULLET_IMAGES
 import pygame
 from settings import DISPLAY, get_hit_list
 from tile import BRICK, GRASS, BETON, ICE, WATER
+from explosion import Explosion
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 
 
@@ -61,5 +62,6 @@ class Bullet:
 
     def die(self):
         if self in self.level.bullets:
+            self.level.explosions.append(Explosion((self.rect.x, self.rect.y), 0))
             self.level.bullets.remove(self)
             self.owner.current_bullets += 1
