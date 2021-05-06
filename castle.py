@@ -18,4 +18,4 @@ class Castle:
         pygame.mixer.music.load('sounds/game_over.mp3')
         pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play()
-        main_menu(self.level.player.score, "Game Over")
+        main_menu(self.level.players[0].score, "Game Over")

@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 
 from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
                   DIRECTION_RIGHT, DIRECTION_LEFT)
@@ -11,9 +12,14 @@ from explosion import Explosion
 
 
 class Player(Tank):
-    def __init__(self, kind, speed=0.75,
+    def __init__(self, number, kind, speed=0.75,
                  direction=DIRECTION_UP, position=(50, 50), level=None):
         Tank.__init__(self, 0, kind, speed, direction, position, level)
+        self.number = number
+        if self.number == 0:
+            self.controls = {K_w:DIRECTION_UP, K_s:DIRECTION_DOWN, K_d:DIRECTION_RIGHT, K_a:DIRECTION_LEFT}
+        elif self.number == 1:
+            self.controls = {K_UP:DIRECTION_UP, K_DOWN:DIRECTION_DOWN, K_RIGHT:DIRECTION_RIGHT, K_LEFT:DIRECTION_LEFT}
         self.pressed_keys = [False] * 4
         self.is_alive = True
         self.lifes = 3
@@ -66,7 +72,7 @@ class Player(Tank):
         pygame.mixer.music.load('sounds/tank_explosion.mp3')
         pygame.mixer.music.set_volume(0.05)
         pygame.mixer.music.play()
-        self.level.explosions.append(Explosion((self.rect.x, self.rect.y), 1))
+        self.level.explosions.append(Explosion(self.rect.topleft, 1))
         self.is_alive = False
         self.lifes -= 1
         self.to_start()

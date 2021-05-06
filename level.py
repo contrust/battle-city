@@ -7,7 +7,7 @@ from settings import DISPLAY
 
 
 class Level:
-    def __init__(self, number, player=None):
+    def __init__(self, number, players=None):
         self.map = []
         self.number = number
         with open(f'maps/{number}.txt', 'r') as f:
@@ -36,12 +36,13 @@ class Level:
             (112, 216))
         for protecting_block in self.protecting_blocks:
             self.map.append(Tile(BRICK, protecting_block))
-        if player is None:
-            self.player = Player(0, 3 / 4, 0, (64, 208), self)
+        if players is None:
+            self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self), Player(1, 0, 3 / 4, 0, (128, 208), self)]
         else:
-            self.player = player
-            self.player.is_alive = True
-            self.player.level = self
+            for player in players:
+                player = player
+                player.is_alive = True
+                player.level = self
         self.bullets = []
         self.enemies = []
         self.explosions = []

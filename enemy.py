@@ -31,7 +31,7 @@ class Enemy(Tank):
             self.return_on_map()
             self.direction = randrange(4)
         self.make_step()
-        for player in get_hit_list(self.rect, [self.level.player]):
+        for player in get_hit_list(self.rect, self.level.players):
             self.is_moving_to_target = False
             self.turn_back()
             self.make_step()
@@ -82,7 +82,7 @@ class Enemy(Tank):
                 self.direction = DIRECTION_UP
         else:
             if target == PLAYER:
-                self.find_path(self.level.player.rect.topleft, 0, self.level)
+                self.find_path(self.level.players[0].rect.topleft, 0, self.level)
             elif target == CASTLE:
                 self.find_path((96, 208), 1, self.level)
 
@@ -148,5 +148,5 @@ class Enemy(Tank):
         pygame.mixer.music.set_volume(0.05)
         pygame.mixer.music.play()
         self.level.explosions.append(Explosion((self.rect.x, self.rect.y), 1))
-        self.level.player.score[self.kind] += 1
+        self.level.players[0].score[self.kind] += 1
         self.level.enemies.remove(self)
