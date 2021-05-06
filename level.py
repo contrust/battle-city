@@ -4,10 +4,11 @@ from castle import *
 from random import randrange
 from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
 from settings import DISPLAY
+from menu import player_count
 
 
 class Level:
-    def __init__(self, number, players=None):
+    def __init__(self, number, players=[]):
         self.map = []
         self.number = number
         with open(f'maps/{number}.txt', 'r') as f:
@@ -36,9 +37,15 @@ class Level:
             (112, 216))
         for protecting_block in self.protecting_blocks:
             self.map.append(Tile(BRICK, protecting_block))
-        if players is None:
+        if len(players) == 0 and player_count == 1:
+            self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self)]
+        elif player_count == 1:
+            self.player = players[0]
+            self.player.is_alive = True
+            self.player.level = self
+        if len(players) == 0 and player_count == 2:
             self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self), Player(1, 0, 3 / 4, 0, (128, 208), self)]
-        else:
+        elif player_count == 2:
             for player in players:
                 player = player
                 player.is_alive = True

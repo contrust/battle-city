@@ -18,6 +18,7 @@ from level import Level
 CLOCK = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Battle City')
+from menu import player_count
 
 
 def draw(entity):
@@ -29,9 +30,9 @@ def win_game():
     pygame.mixer.music.load('sounds/win_game.mp3')
     pygame.mixer.music.set_volume(0.1)
     pygame.mixer.music.play()
-    main_menu(current_level.player[0].score, "You won")
+    main_menu(current_level.players[0].score, "You won")
     main_menu()
-    level_number = 1
+    level_number = 0
     current_level = Level(1)
 
 
@@ -52,6 +53,7 @@ while 1:
             for player in current_level.players:
                 player.score = [0, 0, 0, 0]
                 player.to_start()
+            current_level.players = []
             current_level = Level(level_number, current_level.players)
     if not current_level.castle.is_alive:
         current_level = Level(1)
@@ -132,7 +134,10 @@ while 1:
                     level_number = 1
                     current_level = Level(1)
                 if event.key == K_SPACE:
-                    player.fire()
+                    current_level.players[0].fire()
+                if player_count == 2:
+                    if event.key == K_LALT:
+                        current_level.players[1].fire()
                 if event.key == K_F9:
                     for enemy in current_level.enemies[:]:
                         enemy.die()

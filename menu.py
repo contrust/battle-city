@@ -16,6 +16,7 @@ tanks_images = [pygame.transform.scale(SPRITES.subsurface((128, 0, 16, 16)),
                                        (48, 48)),
                 pygame.transform.scale(SPRITES.subsurface((128, 48, 16, 16)),
                                        (48, 48))]
+player_count = 2
 
 
 def draw_text(text, font, color, surface, x, y, show_stat=False, score=None):
