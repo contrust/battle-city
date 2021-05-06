@@ -45,7 +45,7 @@ class Bullet:
                         enemy.die()
                     self.die()
             else:
-                for player in get_hit_list(self.rect, [self.level.player]):
+                for player in get_hit_list(self.rect, self.level.players):
                     player.health -= 1
                     if player.health == 0:
                         player.die()
