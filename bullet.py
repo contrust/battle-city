@@ -43,6 +43,7 @@ class Bullet:
                     enemy.health -= 1
                     if enemy.health == 0:
                         enemy.die()
+                        self.owner.score[enemy.kind] += 1
                     self.die()
             else:
                 for player in get_hit_list(self.rect, self.level.players):
@@ -62,6 +63,6 @@ class Bullet:
 
     def die(self):
         if self in self.level.bullets:
-            self.level.explosions.append(Explosion((self.rect.x, self.rect.y), 0))
+            self.level.explosions.append(Explosion(self.rect.topleft, 0))
             self.level.bullets.remove(self)
             self.owner.current_bullets += 1

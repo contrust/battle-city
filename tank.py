@@ -86,7 +86,7 @@ class Tank:
             self.y += self.speed
         self.rect.topleft = round(self.x), round(self.y)
 
-    def align_collision(self, entity):
+    def align_static_collision(self, entity):
         if (self.rect.bottom >= entity.rect.top and
                 self.rect.bottom <= entity.rect.bottom and
                 self.direction == DIRECTION_DOWN):
@@ -104,6 +104,11 @@ class Tank:
                 self.direction == DIRECTION_RIGHT):
             self.rect.right = entity.rect.left
         self.x, self.y = self.rect.topleft
+
+    def align_dynamic_collision(self):
+        self.turn_back()
+        self.make_step()
+        self.turn_back()
 
     def turn_back(self):
         self.direction = 2 * (self.direction // 2) + (self.direction + 1) % 2

@@ -1,6 +1,5 @@
 from sprites import BOLD_SPRITES
 import pygame
-from menu import main_menu
 
 
 class Castle:
@@ -18,4 +17,3 @@ class Castle:
         pygame.mixer.music.load('sounds/game_over.mp3')
         pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play()
-        main_menu(self.level.players[0].score, "Game Over")

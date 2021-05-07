@@ -1,91 +1,178 @@
 import pygame
 import sys
-from pygame.locals import *
+from level import Level
 
-pygame.init()
-screen = pygame.display.set_mode((600, 480), 0, 32)
-font = pygame.font.SysFont(None, 60)
-mainClock = pygame.time.Clock()
-SPRITES = pygame.image.load('sprite.png').convert_alpha()
-button = None
-tanks_images = [pygame.transform.scale(SPRITES.subsurface((128, 0, 16, 16)),
-                                       (48, 48)),
-                pygame.transform.scale(SPRITES.subsurface((128, 16, 16, 16)),
-                                       (48, 48)),
-                pygame.transform.scale(SPRITES.subsurface((128, 32, 16, 16)),
-                                       (48, 48)),
-                pygame.transform.scale(SPRITES.subsurface((128, 48, 16, 16)),
-                                       (48, 48))]
-player_count = 2
+class Menu():
+    def __init__(self, game):
+        self.game = game
+        self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
+        self.run_display = True
+        self.cursor_rect = pygame.Rect(0, 0, 20, 20)
+        self.offset = - 75
+
+    def draw_cursor(self):
+        self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
+
+    def blit_screen(self):
+        self.game.window.blit(self.game.small_display, (55, 0))
+        pygame.display.update()
+        self.game.reset_keys()
+
+class MainMenu(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = "Start"
+        self.startx, self.starty = self.mid_w, self.mid_h + 30
+        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
+        self.creditsx, self.creditsy = self.mid_w, self.mid_h + 70
+        self.exitx, self.exity = self.mid_w, self.mid_h + 90
+        self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input()
+            self.game.small_display.fill(self.game.BLACK)
+            self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.game.draw_text("Start Game", 15, self.startx, self.starty)
+            self.game.draw_text("Options", 15, self.optionsx, self.optionsy)
+            self.game.draw_text("Credits", 15, self.creditsx, self.creditsy)
+            self.game.draw_text("Exit", 15, self.exitx, self.exity)
+            self.draw_cursor()
+            self.blit_screen()
 
 
-def draw_text(text, font, color, surface, x, y, show_stat=False, score=None):
-    text_obj = font.render(text, 1, color)
-    text_rect = text_obj.get_rect()
-    text_rect.center = (x, y)
-    surface.blit(text_obj, text_rect)
-    if show_stat:
-        surface.blit(tanks_images[0], (80, 144))
-        surface.blit(tanks_images[1], (80, 204))
-        surface.blit(tanks_images[2], (80, 264))
-        surface.blit(tanks_images[3], (80, 324))
-        surface.blit(font.render(str(score[0]), 1,
-                                 (255, 255, 255)), (160, 152))
-        surface.blit(font.render(str(score[1]), 1,
-                                 (255, 255, 255)), (160, 212))
-        surface.blit(font.render(str(score[2]), 1,
-                                 (255, 255, 255)), (160, 272))
-        surface.blit(font.render(str(score[3]), 1,
-                                 (255, 255, 255)), (160, 332))
+    def move_cursor(self):
+        if self.game.DOWN_KEY:
+            if self.state == 'Start':
+                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
+                self.state = 'Options'
+            elif self.state == 'Options':
+                self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
+                self.state = 'Credits'
+            elif self.state == 'Credits':
+                self.cursor_rect.midtop = (self.exitx + self.offset, self.exity)
+                self.state = 'Exit'
+            elif self.state == 'Exit':
+                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
+                self.state = 'Start'
+        elif self.game.UP_KEY:
+            if self.state == 'Start':
+                self.cursor_rect.midtop = (self.exitx + self.offset, self.exity)
+                self.state = 'Exit'
+            elif self.state == 'Options':
+                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
+                self.state = 'Start'
+            elif self.state == 'Credits':
+                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
+                self.state = 'Options'
+            elif self.state == 'Exit':
+                self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
+                self.state = 'Credits'
 
-
-def main_menu(score=None, status="Battle City"):
-    click = False
-    screen.fill((0, 0, 0))
-    global button
-    while 1:
-        if status == "You won":
-            draw_text('You won', font, (160, 54, 35),
-                      screen, screen.get_width() / 2,
-                      screen.get_height() / 8, True, score)
-            button = font.render('Back to menu', True,
-                                 (255, 255, 255), (0, 0, 0))
-        if status == "Game Over":
-            draw_text('Game Over', font, (160, 54, 35),
-                      screen, screen.get_width()/2,
-                      screen.get_height()/8, True, score)
-            button = font.render('Try again', True, (255, 255, 255), (0, 0, 0))
-        if status == "Battle City":
-            draw_text('Battle City', font, (160, 54, 35),
-                      screen, screen.get_width()/2, screen.get_height()/8)
-            button = font.render('Play', True, (255, 255, 255), (0, 0, 0))
-        if status == "Victory":
-            draw_text('Victory', font, (160, 54, 35),
-                      screen, screen.get_width()/2,
-                      screen.get_height()/8, True, score)
-            button = font.render('Next level', True,
-                                 (255, 255, 255), (0, 0, 0))
-        button_rect = button.get_rect()
-        button_rect.x = (screen.get_width() - button_rect.width) / 2
-        button_rect.y = screen.get_width() / 4.5
-        mx, my = pygame.mouse.get_pos()
-        if button_rect.collidepoint((mx, my)):
-            if click:
-                return
-        screen.blit(button, button_rect)
-        for event in pygame.event.get():
-            if event.type == QUIT:
+    def check_input(self):
+        self.move_cursor()
+        if self.game.START_KEY:
+            if self.state == 'Start':
+                self.game.playing = True
+            elif self.state == 'Options':
+                self.game.curr_menu = self.game.options
+            elif self.state == 'Credits':
+                self.game.curr_menu = self.game.credits
+            elif self.state == 'Exit':
                 pygame.quit()
                 sys.exit()
-            if event.type == MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    click = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    return
-        pygame.display.update()
-        mainClock.tick(60)
+            self.run_display = False
 
+class OptionsMenu(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = 'Volume'
+        self.volx, self.voly = self.mid_w, self.mid_h + 20
+        self.controlsx, self.controlsy = self.mid_w, self.mid_h + 40
+        self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
 
-if __name__ == '__main__':
-    main_menu()
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input()
+            self.game.small_display.fill((0, 0, 0))
+            self.game.draw_text('Options', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
+            self.game.draw_text("Volume", 15, self.volx, self.voly)
+            self.game.draw_text("Controls", 15, self.controlsx, self.controlsy)
+            self.draw_cursor()
+            self.blit_screen()
+
+    def check_input(self):
+        if self.game.BACK_KEY:
+            self.game.curr_menu = self.game.main_menu
+            self.run_display = False
+        elif self.game.UP_KEY or self.game.DOWN_KEY:
+            if self.state == 'Volume':
+                self.state = 'Controls'
+                self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
+            elif self.state == 'Controls':
+                self.state = 'Volume'
+                self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
+        elif self.game.START_KEY:
+            # Здесь можно сделать контролы и громкость, но мне лень, да и это в принципе не нужно
+            pass
+
+class CreditsMenu(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            if self.game.START_KEY or self.game.BACK_KEY:
+                self.game.curr_menu = self.game.main_menu
+                self.run_display = False
+                self.game.level = Level(1, self)
+            self.game.small_display.fill(self.game.BLACK)
+            self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.game.draw_text('Artyom Borisov', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
+            self.game.draw_text('Artyom Burgart', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 40)
+            self.blit_screen()
+
+class GameOverMenu(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            if self.game.START_KEY or self.game.BACK_KEY:
+                self.game.curr_menu = self.game.main_menu
+                self.run_display = False
+                self.game.level = Level(1, self)
+            self.game.small_display.fill(self.game.BLACK)
+            self.game.draw_text('GAME OVER', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2)
+            self.blit_screen()
+
+class NextRoundMenu(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            if self.game.START_KEY or self.game.BACK_KEY:
+                self.game.curr_menu = self.game.main_menu
+                self.run_display = False
+                self.game.playing = True
+                for player in self.game.level.players:
+                        player.score = [0, 0, 0, 0]
+                        player.to_start()
+                self.game.level = Level(self.game.level.number + 1, self, self.game.level.players)
+            self.game.small_display.fill(self.game.BLACK)
+            self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            for i in range(len(self.game.level.players)):
+                for j in range(4):
+                    self.game.draw_text(str(self.game.level.players[i].score[j]), 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
+            self.blit_screen()

@@ -7,7 +7,6 @@ from settings import get_hit_list
 from sprites import TANKS_IMAGES
 from bonus import HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS
 from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
-from menu import main_menu
 from explosion import Explosion
 
 
@@ -26,6 +25,22 @@ class Player(Tank):
         self.max_lifes = 4
         self.score = [0, 0, 0, 0]
 
+    def collide_with_bonus(self, bonus):
+        if bonus.type == GRENADE:
+            for enemy in self.level.enemies[:]:
+                enemy.die()
+        if bonus.type == STAR:
+            if self.kind < 3:
+                self.kind += 1
+                self.get_type()
+        if bonus.type == SHOVEL:
+            for protecting_block in self.level.protecting_blocks:
+                self.level.map.append(Tile(BETON, protecting_block))
+        if bonus.type == TANK_BONUS:
+            if self.lifes < self.max_lifes:
+                self.lifes += 1
+        bonus.die()
+
     def move(self):
         self.image = TANKS_IMAGES[0][self.kind][self.direction]
         for direction in range(4):
@@ -40,31 +55,13 @@ class Player(Tank):
             self.return_on_map()
             for tile in get_hit_list(self.rect, self.level.map):
                 if tile.type != GRASS:
-                    self.align_collision(tile)
+                    self.align_static_collision(tile)
             for enemy in get_hit_list(self.rect, self.level.enemies):
-                self.turn_back()
-                self.make_step()
-                self.turn_back()
-            if len(self.level.players) == 2:
-                if self.rect.colliderect(self.level.players[(self.number + 1) % 2]):
-                    self.align_collision(self.level.players[(self.number + 1) % 2])
+                self.align_dynamic_collision()
             for bonus in get_hit_list(self.rect, self.level.bonuses):
-                if bonus.type == GRENADE:
-                    for enemy in self.level.enemies[:]:
-                        enemy.die()
-                if bonus.type == STAR:
-                    if self.kind < 3:
-                        self.kind += 1
-                        self.get_type()
-                if bonus.type == SHOVEL:
-                    for protecting_block in self.level.protecting_blocks:
-                        self.level.map.append(Tile(BETON, protecting_block))
-                if bonus.type == TANK_BONUS:
-                    if self.lifes < self.max_lifes:
-                        self.lifes += 1
-                bonus.die()
+                self.collide_with_bonus(bonus)
             for castle in get_hit_list(self.rect, [self.level.castle]):
-                self.align_collision(castle)
+                self.align_static_collision(castle)
 
     def to_start(self):
         self.x, self.y, self.rect.topleft = 64, 208, (64, 208)
@@ -80,7 +77,6 @@ class Player(Tank):
         self.lifes -= 1
         self.to_start()
         if not self.lifes:
-            pygame.mixer.music.load('sounds/game_over.mp3')
-            pygame.mixer.music.set_volume(0.1)
-            pygame.mixer.music.play()
-            main_menu(self.score, "Game Over")
+            self.level.kill_player(self)
+            if not self.level.players:
+                self.level.game.game_over()
