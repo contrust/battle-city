@@ -157,9 +157,6 @@ class Game():
                 for player in self.level.players:
                     if event.key in player.controls.keys():
                         player.pressed_keys[player.controls[event.key]] = True
-                    if event.key == K_ESCAPE:
-                        level_number = 1
-                        self.level = Level(1, self)
                     if event.key == K_SPACE and player.number == 0:
                         player.fire()
                     if event.key == K_LALT and player.number == 1:

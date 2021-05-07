@@ -4,6 +4,9 @@ from level import Level
 from enemy import Enemy
 from random import randrange
 
+players_count = 1
+
+
 class Menu():
     def __init__(self, game):
         self.game = game
@@ -82,13 +85,16 @@ class MainMenu(Menu):
                 self.state = 'Credits'
 
     def check_input(self):
+        global players_count
         self.move_cursor()
         if self.game.START_KEY:
             if self.state == '1 Player':
-                self.game.level = Level(1, 1, self.game)
+                players_count = 1
+                self.game.level = Level(1, players_count, self.game)
                 self.game.playing = True
             elif self.state == '2 Players':
-                self.game.level = Level(1, 2, self.game)
+                players_count = 2
+                self.game.level = Level(1, players_count, self.game)
                 self.game.playing = True
             elif self.state == 'Options':
                 self.game.curr_menu = self.game.options
@@ -139,13 +145,14 @@ class CreditsMenu(Menu):
         Menu.__init__(self, game)
 
     def display_menu(self):
+        global players_count
         self.run_display = True
         while self.run_display:
             self.game.check_events()
             if self.game.START_KEY or self.game.BACK_KEY:
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
-                self.game.level = Level(1, self)
+                self.game.level = Level(1, players_count, self)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text('Artyom Borisov', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
@@ -157,13 +164,14 @@ class GameOverMenu(Menu):
         Menu.__init__(self, game)
 
     def display_menu(self):
+        global players_count
         self.run_display = True
         while self.run_display:
             self.game.check_events()
             if self.game.START_KEY or self.game.BACK_KEY:
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
-                self.game.level = Level(1, self)
+                self.game.level = Level(1, players_count, self)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('GAME OVER', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2)
             self.blit_screen()
@@ -178,17 +186,18 @@ class NextRoundMenu(Menu):
 
 
     def display_menu(self):
+        global players_count
         self.run_display = True
         while self.run_display:
             self.game.check_events()
-            if self.game.START_KEY or self.game.BACK_KEY:
+            if self.game.START_KEY:
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
                 self.game.playing = True
                 for player in self.game.level.players:
                         player.score = [0, 0, 0, 0]
                         player.to_start()
-                self.game.level = Level(self.game.level.number + 1, self, self.game.level.players)
+                self.game.level = Level(self.game.level.number + 1, players_count, self)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             for i in range(len(self.game.level.players)):
