@@ -7,9 +7,10 @@ from settings import DISPLAY
 
 
 class Level:
-    def __init__(self, number, players=None):
+    def __init__(self, number, game, players=None):
         self.map = []
         self.number = number
+        self.game = game
         with open(f'maps/{number}.txt', 'r') as f:
             y = 0
             for line in f:
@@ -39,9 +40,10 @@ class Level:
         if players is None:
             self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self), Player(1, 0, 3 / 4, 0, (128, 208), self)]
         else:
+            self.players = players
             for player in players:
-                player = player
                 player.is_alive = True
+                player.current_bullets = player.max_bullets
                 player.level = self
         self.bullets = []
         self.enemies = []
@@ -55,5 +57,11 @@ class Level:
         self.castle = Castle(self)
         self.goal = 1
 
+    def get_score(self):
+        return sum((sum(player.score) for player in self.players))
+
     def kill_tile(self, tile):
         self.map.remove(tile)
+
+    def kill_player(self, player):
+        self.players.remove(player)
