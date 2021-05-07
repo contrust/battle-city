@@ -22,7 +22,7 @@ class Game():
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 208, 224
         self.small_display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
-        self.window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_W), pygame.FULLSCREEN)
         self.level = Level(1, self)
         self.font_name = '8-BIT WONDER.TTF'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
@@ -111,7 +111,7 @@ class Game():
             self.draw(self.level.castle)
             if self.START_KEY:
                 self.playing= False
-            self.window.blit(self.small_display, (0,0))
+            self.window.blit(self.small_display, (55,0))
             pygame.display.update()
             self.reset_keys()
             self.CLOCK.tick(60)

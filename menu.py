@@ -14,7 +14,7 @@ class Menu():
         self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
-        self.game.window.blit(self.game.small_display, (0, 0))
+        self.game.window.blit(self.game.small_display, (55, 0))
         pygame.display.update()
         self.game.reset_keys()
 
@@ -189,8 +189,8 @@ class NextRoundMenu(Menu):
                         player.to_start()
                 self.game.level = Level(self.game.level.number + 1, self, self.game.level.players)
             self.game.small_display.fill(self.game.BLACK)
-            self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 100)
+            self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             for i in range(len(self.game.level.players)):
                 for j in range(4):
-                    self.game.draw_text(str(self.game.level.players[i].score[j]), 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 - 20 * (j + 1))
+                    self.game.draw_text(str(self.game.level.players[i].score[j]), 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
             self.blit_screen()
