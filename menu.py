@@ -196,7 +196,10 @@ class NextRoundMenu(Menu):
                 self.game.playing = True
                 for player in self.game.level.players:
                         player.score = [0, 0, 0, 0]
-                        player.to_start()
+                        if player.number == 0:
+                            player.to_start(64, 208)
+                        if player.number == 1:
+                            player.to_start(128, 208)
                 self.game.level = Level(self.game.level.number + 1, players_count, self)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
