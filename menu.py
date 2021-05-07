@@ -1,6 +1,8 @@
 import pygame
 import sys
 from level import Level
+from enemy import Enemy
+from random import randrange
 
 class Menu():
     def __init__(self, game):
@@ -34,7 +36,7 @@ class MainMenu(Menu):
             self.game.check_events()
             self.check_input()
             self.game.small_display.fill(self.game.BLACK)
-            self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.game.draw_text('Battle City', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text("Start Game", 15, self.startx, self.starty)
             self.game.draw_text("Options", 15, self.optionsx, self.optionsy)
             self.game.draw_text("Credits", 15, self.creditsx, self.creditsy)
@@ -75,6 +77,7 @@ class MainMenu(Menu):
         self.move_cursor()
         if self.game.START_KEY:
             if self.state == 'Start':
+                self.game.level = Level(1, self.game)
                 self.game.playing = True
             elif self.state == 'Options':
                 self.game.curr_menu = self.game.options
@@ -157,6 +160,11 @@ class GameOverMenu(Menu):
 class NextRoundMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.enemies = [Enemy(0, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 - 6), 0, self.game.level),
+                        Enemy(1, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 14), 0, self.game.level),
+                        Enemy(2, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 34), 0, self.game.level),
+                        Enemy(3, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 54), 0, self.game.level)]
+
 
     def display_menu(self):
         self.run_display = True
@@ -174,5 +182,6 @@ class NextRoundMenu(Menu):
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             for i in range(len(self.game.level.players)):
                 for j in range(4):
+                    self.game.draw(self.enemies[j])
                     self.game.draw_text(str(self.game.level.players[i].score[j]), 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
             self.blit_screen()
