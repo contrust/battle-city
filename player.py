@@ -66,8 +66,8 @@ class Player(Tank):
             for castle in get_hit_list(self.rect, [self.level.castle]):
                 self.align_static_collision(castle)
 
-    def to_start(self):
-        self.x, self.y, self.rect.topleft = 64, 208, (64, 208)
+    def to_start(self, x, y):
+        self.x, self.y, self.rect.topleft = x, y, (x, y)
         self.pressed_keys = [False] * 4
         self.direction = DIRECTION_UP
 
@@ -78,7 +78,10 @@ class Player(Tank):
         self.level.explosions.append(Explosion(self.rect.topleft, 1))
         self.is_alive = False
         self.lifes -= 1
-        self.to_start()
+        if self.number == 0:
+            self.to_start(64, 208)
+        if self.number == 1:
+            self.to_start(128, 208)
         if not self.lifes:
             self.level.kill_player(self)
             if not self.level.players:

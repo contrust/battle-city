@@ -57,28 +57,43 @@ class Game():
                     self.level.players[0].is_alive = True
                 else:
                     self.game_over()
+            if len(self.level.players) == 2:
+                if not self.level.players[1].is_alive:
+                    if self.level.players[1].lifes:
+                        self.level.players[1].kind = 0
+                        self.level.players[1].get_type()
+                        self.level.players[1].is_alive = True
+                    else:
+                        self.game_over()
             for player in self.level.players:
                 self.draw(player)
                 player.move()
 
             if not randrange(250):
                 if len(self.level.enemies) < 4:
-                    if (self.level.get_score() + len(self.level.enemies) < 5):
-                        self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                           (96 * randrange(3), 0),
-                                                           0, self.level))
+                    if self.level.get_score() + len(self.level.enemies) < 5:
+                        rnd = randrange(0, 2)
+                        if rnd == 0:
+                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 0, self.level))
+                        if rnd == 1:
+                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 1, self.level))
                     else:
-                        self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                           (96 * randrange(3), 0),
-                                                           1, self.level))
+                        self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 2, self.level))
             for enemy in self.level.enemies:
                 self.draw(enemy)
                 if not randrange(140):
-                    if enemy.target == 1:
+                    if enemy.target == 2:
                         enemy.find_path((96, 208), 1, self.level)
-                    else:
-                        enemy.find_path(self.level.players[0].rect.topleft,
-                                        0, self.level)
+                    if enemy.target == 0:
+                        try:
+                            enemy.find_path(self.level.players[0].rect.topleft, 0, self.level)
+                        except IndexError:
+                            enemy.find_path(self.level.players[1].rect.topleft, 0, self.level)
+                    if enemy.target == 1:
+                        try:
+                            enemy.find_path(self.level.players[1].rect.topleft, 0, self.level)
+                        except IndexError:
+                            enemy.find_path(self.level.players[0].rect.topleft, 0, self.level)
                 enemy.move()
                 if not randrange(50):
                     enemy.fire()
@@ -163,6 +178,7 @@ class Game():
                         player.fire()
                     if event.key == K_F9:
                         for enemy in self.level.enemies[:]:
+                            self.level.players[0].score[enemy.kind] += 1
                             enemy.die()
                     if event.key == K_F10:
                         if player.kind != 3:
