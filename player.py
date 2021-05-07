@@ -58,6 +58,8 @@ class Player(Tank):
                     self.align_static_collision(tile)
             for enemy in get_hit_list(self.rect, self.level.enemies):
                 self.align_dynamic_collision()
+            if self.rect.colliderect(self.level.players[(self.number + 1) % 2]):
+                self.align_static_collision(self.level.players[(self.number + 1) % 2])
             for bonus in get_hit_list(self.rect, self.level.bonuses):
                 self.collide_with_bonus(bonus)
             for castle in get_hit_list(self.rect, [self.level.castle]):

@@ -1,6 +1,8 @@
 import pygame
 import sys
 from level import Level
+from enemy import Enemy
+from random import randrange
 
 class Menu():
     def __init__(self, game):
@@ -14,19 +16,20 @@ class Menu():
         self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
-        self.game.window.blit(self.game.small_display, (55, 0))
+        self.game.window.blit(self.game.small_display, (0, 0))
         pygame.display.update()
         self.game.reset_keys()
 
 class MainMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = "Start"
-        self.startx, self.starty = self.mid_w, self.mid_h + 30
+        self.state = "1 Player"
+        self.oneplayerx, self.oneplayery = self.mid_w, self.mid_h + 10
+        self.twoplayersx, self.twoplayersy = self.mid_w, self.mid_h + 30
         self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
         self.creditsx, self.creditsy = self.mid_w, self.mid_h + 70
         self.exitx, self.exity = self.mid_w, self.mid_h + 90
-        self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
+        self.cursor_rect.midtop = (self.oneplayerx + self.offset, self.oneplayery)
 
     def display_menu(self):
         self.run_display = True
@@ -34,8 +37,9 @@ class MainMenu(Menu):
             self.game.check_events()
             self.check_input()
             self.game.small_display.fill(self.game.BLACK)
-            self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
-            self.game.draw_text("Start Game", 15, self.startx, self.starty)
+            self.game.draw_text('Battle City', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.game.draw_text("1 Player", 15, self.oneplayerx, self.oneplayery)
+            self.game.draw_text("2 Players", 15, self.twoplayersx, self.twoplayersy)
             self.game.draw_text("Options", 15, self.optionsx, self.optionsy)
             self.game.draw_text("Credits", 15, self.creditsx, self.creditsy)
             self.game.draw_text("Exit", 15, self.exitx, self.exity)
@@ -45,7 +49,10 @@ class MainMenu(Menu):
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
-            if self.state == 'Start':
+            if self.state == '1 Player':
+                self.cursor_rect.midtop = (self.twoplayersx + self.offset, self.twoplayersy)
+                self.state = '2 Players'
+            elif self.state == '2 Players':
                 self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
                 self.state = 'Options'
             elif self.state == 'Options':
@@ -55,15 +62,18 @@ class MainMenu(Menu):
                 self.cursor_rect.midtop = (self.exitx + self.offset, self.exity)
                 self.state = 'Exit'
             elif self.state == 'Exit':
-                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-                self.state = 'Start'
+                self.cursor_rect.midtop = (self.oneplayerx + self.offset, self.oneplayery)
+                self.state = '1 Player'
         elif self.game.UP_KEY:
-            if self.state == 'Start':
+            if self.state == '1 Player':
                 self.cursor_rect.midtop = (self.exitx + self.offset, self.exity)
                 self.state = 'Exit'
+            elif self.state == '2 Players':
+                self.cursor_rect.midtop = (self.oneplayerx + self.offset, self.oneplayery)
+                self.state = '1 Player'
             elif self.state == 'Options':
-                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-                self.state = 'Start'
+                self.cursor_rect.midtop = (self.twoplayersx + self.offset, self.twoplayersy)
+                self.state = '2 Players'
             elif self.state == 'Credits':
                 self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
                 self.state = 'Options'
@@ -74,7 +84,11 @@ class MainMenu(Menu):
     def check_input(self):
         self.move_cursor()
         if self.game.START_KEY:
-            if self.state == 'Start':
+            if self.state == '1 Player':
+                self.game.level = Level(1, 1, self.game)
+                self.game.playing = True
+            elif self.state == '2 Players':
+                self.game.level = Level(1, 2, self.game)
                 self.game.playing = True
             elif self.state == 'Options':
                 self.game.curr_menu = self.game.options
@@ -157,6 +171,11 @@ class GameOverMenu(Menu):
 class NextRoundMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.enemies = [Enemy(0, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 - 6), 0, self.game.level),
+                        Enemy(1, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 14), 0, self.game.level),
+                        Enemy(2, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 34), 0, self.game.level),
+                        Enemy(3, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 54), 0, self.game.level)]
+
 
     def display_menu(self):
         self.run_display = True
@@ -174,5 +193,6 @@ class NextRoundMenu(Menu):
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             for i in range(len(self.game.level.players)):
                 for j in range(4):
+                    self.game.draw(self.enemies[j])
                     self.game.draw_text(str(self.game.level.players[i].score[j]), 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
             self.blit_screen()

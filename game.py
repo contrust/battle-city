@@ -22,8 +22,8 @@ class Game():
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 208, 224
         self.small_display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
-        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_W), pygame.FULLSCREEN)
-        self.level = Level(1, self)
+        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), pygame.SCALED)
+        self.level = Level(1, 1, self)
         self.font_name = '8-BIT WONDER.TTF'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
@@ -109,9 +109,9 @@ class Game():
                         self.level.explosions.remove(explosion)
 
             self.draw(self.level.castle)
-            if self.START_KEY:
-                self.playing= False
-            self.window.blit(self.small_display, (55,0))
+            if self.BACK_KEY:
+                self.playing = False
+            self.window.blit(self.small_display, (0, 0))
             pygame.display.update()
             self.reset_keys()
             self.CLOCK.tick(60)
@@ -160,7 +160,9 @@ class Game():
                     if event.key == K_ESCAPE:
                         level_number = 1
                         self.level = Level(1, self)
-                    if event.key == K_SPACE:
+                    if event.key == K_SPACE and player.number == 0:
+                        player.fire()
+                    if event.key == K_LALT and player.number == 1:
                         player.fire()
                     if event.key == K_F9:
                         for enemy in self.level.enemies[:]:

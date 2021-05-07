@@ -7,7 +7,7 @@ from settings import DISPLAY
 
 
 class Level:
-    def __init__(self, number, game, players=None):
+    def __init__(self, number, count, game, players=None):
         self.map = []
         self.number = number
         self.game = game
@@ -37,9 +37,16 @@ class Level:
             (112, 216))
         for protecting_block in self.protecting_blocks:
             self.map.append(Tile(BRICK, protecting_block))
-        if not players:
+        if not players and count == 1:
+            self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self)]
+        elif count == 1:
+            self.players = players
+            players[0].is_alive = True
+            players[0].current_bullets = players[0].max_bullets
+            players[0].level = self
+        if not players and count == 2:
             self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self), Player(1, 0, 3 / 4, 0, (128, 208), self)]
-        else:
+        elif count == 2:
             self.players = players
             for player in players:
                 player.is_alive = True
