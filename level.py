@@ -37,7 +37,13 @@ class Level:
             (112, 216))
         for protecting_block in self.protecting_blocks:
             self.map.append(Tile(BRICK, protecting_block))
-        if players is None:
+        if len(players) == 0 and player_count == 1:
+            self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self)]
+        elif player_count == 1:
+            self.player = players[0]
+            self.player.is_alive = True
+            self.player.level = self
+        if len(players) == 0 and player_count == 2:
             self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self), Player(1, 0, 3 / 4, 0, (128, 208), self)]
         else:
             self.players = players

@@ -16,9 +16,9 @@ class Player(Tank):
         Tank.__init__(self, 0, kind, speed, direction, position, level)
         self.number = number
         if self.number == 0:
-            self.controls = {K_w:DIRECTION_UP, K_s:DIRECTION_DOWN, K_d:DIRECTION_RIGHT, K_a:DIRECTION_LEFT}
+            self.controls = {K_UP: DIRECTION_UP, K_DOWN: DIRECTION_DOWN, K_RIGHT: DIRECTION_RIGHT, K_LEFT: DIRECTION_LEFT}
         elif self.number == 1:
-            self.controls = {K_UP:DIRECTION_UP, K_DOWN:DIRECTION_DOWN, K_RIGHT:DIRECTION_RIGHT, K_LEFT:DIRECTION_LEFT}
+            self.controls = {K_w: DIRECTION_UP, K_s: DIRECTION_DOWN, K_d: DIRECTION_RIGHT, K_a: DIRECTION_LEFT}
         self.pressed_keys = [False] * 4
         self.is_alive = True
         self.lifes = 3
