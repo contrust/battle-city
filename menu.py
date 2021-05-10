@@ -90,12 +90,10 @@ class MainMenu(Menu):
         if self.game.START_KEY:
             if self.state == '1 Player':
                 players_count = 1
-                self.game.level = Level(1, players_count, self.game)
-                self.game.playing = True
+                self.game.curr_menu = self.game.level_selection
             elif self.state == '2 Players':
                 players_count = 2
-                self.game.level = Level(1, players_count, self.game)
-                self.game.playing = True
+                self.game.curr_menu = self.game.level_selection
             elif self.state == 'Options':
                 self.game.curr_menu = self.game.options
             elif self.state == 'Credits':
@@ -104,6 +102,89 @@ class MainMenu(Menu):
                 pygame.quit()
                 sys.exit()
             self.run_display = False
+
+
+class LevelSelection(Menu):
+    global players_count
+
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = '1 Level'
+        self.firstlevelx, self.firstlevely = self.mid_w, self.mid_h - 40
+        self.secondlevelx, self.secondlevely = self.mid_w, self.mid_h - 20
+        self.thirdlevelx, self.thirdlevely = self.mid_w, self.mid_h
+        self.fourthlevelx, self.fourthlevely = self.mid_w, self.mid_h + 20
+        self.cursor_rect.midtop = (self.firstlevelx + self.offset, self.firstlevely)
+        self.max_position = (self.firstlevelx + self.offset, self.firstlevely)
+
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input()
+            self.game.small_display.fill((0, 0, 0))
+            self.game.draw_text('Select level', 18, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 70)
+            self.game.draw_text("1 Level", 15, self.firstlevelx, self.firstlevely)
+            if self.game.unlocked_levels > 1:
+                self.game.draw_text("2 Level", 15, self.secondlevelx, self.secondlevely)
+                self.max_position = (self.secondlevelx + self.offset, self.secondlevely)
+            if self.game.unlocked_levels > 2:
+                self.game.draw_text("3 Level", 15, self.thirdlevelx, self.thirdlevely)
+                self.max_position = (self.thirdlevelx + self.offset, self.thirdlevely)
+            if self.game.unlocked_levels > 3:
+                self.game.draw_text("4 Level", 15, self.fourthlevelx, self.fourthlevely)
+                self.max_position = (self.fourthlevelx + self.offset, self.fourthlevely)
+            self.draw_cursor()
+            self.blit_screen()
+
+    def check_input(self):
+        if self.game.BACK_KEY:
+            self.game.curr_menu = self.game.main_menu
+            self.run_display = False
+        if self.game.DOWN_KEY:
+            if self.state == (str(self.game.unlocked_levels) + ' Level'):
+                self.cursor_rect.midtop = (self.firstlevelx + self.offset, self.firstlevely)
+                self.state = '1 Level'
+            elif self.state == '1 Level' and self.game.unlocked_levels > 1:
+                self.cursor_rect.midtop = (self.secondlevelx + self.offset, self.secondlevely)
+                self.state = '2 Level'
+            elif self.state == '2 Level' and self.game.unlocked_levels > 2:
+                self.cursor_rect.midtop = (self.thirdlevelx + self.offset, self.thirdlevely)
+                self.state = '3 Level'
+            elif self.state == '3 Level' and self.game.unlocked_levels > 3:
+                self.cursor_rect.midtop = (self.fourthlevelx + self.offset, self.fourthlevely)
+                self.state = '4 Level'
+            elif self.state == '4 Level':
+                self.cursor_rect.midtop = (self.firstlevelx + self.offset, self.firstlevely)
+                self.state = '1 Level'
+        if self.game.UP_KEY:
+            if self.state == '1 Level':
+                self.cursor_rect.midtop = self.max_position
+                self.state = str(self.game.unlocked_levels) + ' Level'
+            elif self.state == '2 Level':
+                self.cursor_rect.midtop = (self.firstlevelx + self.offset, self.firstlevely)
+                self.state = '1 Level'
+            elif self.state == '3 Level' and self.game.unlocked_levels > 1:
+                self.cursor_rect.midtop = (self.secondlevelx + self.offset, self.secondlevely)
+                self.state = '2 Level'
+            elif self.state == '4 Level' and self.game.unlocked_levels > 2:
+                self.cursor_rect.midtop = (self.thirdlevelx + self.offset, self.thirdlevely)
+                self.state = '3 Level'
+        if self.game.START_KEY:
+            if self.state == "1 Level":
+                self.game.level = Level(1, players_count, self.game)
+                self.game.playing = True
+            elif self.state == "2 Level":
+                self.game.level = Level(2, players_count, self.game)
+                self.game.playing = True
+            elif self.state == "3 Level":
+                self.game.level = Level(3, players_count, self.game)
+                self.game.playing = True
+            elif self.state == "4 Level":
+                self.game.level = Level(4, players_count, self.game)
+                self.game.playing = True
+        self.run_display = False
+
 
 class OptionsMenu(Menu):
     def __init__(self, game):

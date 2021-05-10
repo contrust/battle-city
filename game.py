@@ -24,11 +24,13 @@ class Game():
         self.small_display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), pygame.SCALED)
         self.level = Level(1, 1, self)
+        self.unlocked_levels = 1
         self.font_name = '8-BIT WONDER.TTF'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
+        self.level_selection = LevelSelection(self)
         self.curr_menu = self.main_menu
         self.next_round_menu = NextRoundMenu(self)
         self.game_over_menu = GameOverMenu(self)
@@ -45,6 +47,8 @@ class Game():
                 if self.level.number == 4:
                     self.win()
                 else:
+                    if self.level.number == self.unlocked_levels:
+                        self.unlocked_levels += 1
                     self.go_to_next_round()
             if not self.level.castle.is_alive:
                 self.game_over()
@@ -190,6 +194,8 @@ class Game():
                         if self.level.number == 4:
                             self.win()
                         else:
+                            if self.level.number == self.unlocked_levels:
+                                self.unlocked_levels += 1
                             self.go_to_next_round()
                             break
             if event.type == KEYUP:
