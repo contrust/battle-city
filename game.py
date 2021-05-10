@@ -22,7 +22,7 @@ class Game():
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 208, 224
         self.small_display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
-        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), pygame.SCALED)
+        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), SCALED | FULLSCREEN)
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
         self.font_name = '8-BIT WONDER.TTF'
