@@ -28,6 +28,7 @@ class Player(Tank):
     def collide_with_bonus(self, bonus):
         if bonus.type == GRENADE:
             for enemy in self.level.enemies[:]:
+                self.score[enemy.kind] += 1
                 enemy.die()
         if bonus.type == STAR:
             if self.kind < 3:
