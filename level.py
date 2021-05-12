@@ -56,10 +56,10 @@ class Level:
         self.bullets = []
         self.enemies = []
         self.explosions = []
-        self.bonuses = [Bonus(randrange(6),
+        self.bonuses = [Bonus(randrange(4),
                               (randrange(DISPLAY.get_width() - 16),
                                randrange(DISPLAY.get_height() - 15)), self),
-                        Bonus(randrange(6),
+                        Bonus(randrange(4),
                               (randrange(DISPLAY.get_width() - 16),
                               randrange(DISPLAY.get_height() - 15)), self)]
         self.castle = Castle(self)

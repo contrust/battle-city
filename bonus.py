@@ -1,15 +1,13 @@
 from sprites import BOLD_SPRITES
 import pygame
-(HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS) = range(6)
+(SHOVEL, STAR, GRENADE, TANK_BONUS) = range(4)
 
 
 class Bonus:
     def __init__(self, type, position, level):
         self.type = type
         self.level = level
-        self.images = [BOLD_SPRITES.subsurface((255, 111, 16, 15)),
-                       BOLD_SPRITES.subsurface((271, 111, 16, 15)),
-                       BOLD_SPRITES.subsurface((287, 111, 16, 15)),
+        self.images = [BOLD_SPRITES.subsurface((287, 111, 16, 15)),
                        BOLD_SPRITES.subsurface((303, 111, 16, 15)),
                        BOLD_SPRITES.subsurface((319, 111, 16, 15)),
                        BOLD_SPRITES.subsurface((335, 111, 16, 15))]

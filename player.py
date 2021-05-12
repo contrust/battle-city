@@ -5,7 +5,7 @@ from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
                   DIRECTION_RIGHT, DIRECTION_LEFT)
 from settings import get_hit_list
 from sprites import TANKS_IMAGES
-from bonus import HELMET, TIMES, SHOVEL, STAR, GRENADE, TANK_BONUS
+from bonus import SHOVEL, STAR, GRENADE, TANK_BONUS
 from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
 from explosion import Explosion
 
