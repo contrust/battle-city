@@ -43,7 +43,10 @@ class Player(Tank):
         bonus.die()
 
     def move(self):
-        self.image = TANKS_IMAGES[0][self.kind][self.direction]
+        if self.number == 0:
+            self.image = TANKS_IMAGES[0][self.kind][self.direction]
+        else:
+            self.image = TANKS_IMAGES[0][self.kind][self.direction + 4]
         for direction in range(4):
             if self.pressed_keys[direction]:
                 self.direction = direction

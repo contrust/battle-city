@@ -48,7 +48,7 @@ class Game():
             self.small_display.fill(self.BLACK)
             self.check_events()
             if self.level.get_score() >= 4:
-                if self.level.number == 4:
+                if self.level.number == 5:
                     self.win()
                 else:
                     if self.level.number == self.unlocked_levels:
@@ -201,7 +201,7 @@ class Game():
                         for protecting_block in self.level.protecting_blocks:
                             self.level.map.append(Tile(BETON, protecting_block))
                     if event.key == K_F12 and self.curr_menu != self.next_round_menu:
-                        if self.level.number == 4:
+                        if self.level.number == 5:
                             self.win()
                         else:
                             if self.level.number == self.unlocked_levels:

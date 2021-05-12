@@ -116,6 +116,7 @@ class LevelSelection(Menu):
         self.secondlevelx, self.secondlevely = self.mid_w, self.mid_h - 20
         self.thirdlevelx, self.thirdlevely = self.mid_w, self.mid_h
         self.fourthlevelx, self.fourthlevely = self.mid_w, self.mid_h + 20
+        self.fifthlevelx, self.fifthlevely = self.mid_w, self.mid_h + 40
         self.cursor_rect.midtop = (self.firstlevelx + self.offset, self.firstlevely)
         self.max_position = (self.firstlevelx + self.offset, self.firstlevely)
 
@@ -136,6 +137,9 @@ class LevelSelection(Menu):
             if self.game.unlocked_levels > 3:
                 self.game.draw_text("4 Level", 15, self.fourthlevelx, self.fourthlevely)
                 self.max_position = (self.fourthlevelx + self.offset, self.fourthlevely)
+            if self.game.unlocked_levels > 4:
+                self.game.draw_text("5 Level", 15, self.fifthlevelx, self.fifthlevely)
+                self.max_position = (self.fifthlevelx + self.offset, self.fifthlevely)
             self.draw_cursor()
             self.blit_screen()
 
@@ -157,6 +161,9 @@ class LevelSelection(Menu):
                 self.cursor_rect.midtop = (self.fourthlevelx + self.offset, self.fourthlevely)
                 self.state = '4 Level'
             elif self.state == '4 Level':
+                self.cursor_rect.midtop = (self.fifthlevelx + self.offset, self.fifthlevely)
+                self.state = '5 Level'
+            elif self.state == '5 Level':
                 self.cursor_rect.midtop = (self.firstlevelx + self.offset, self.firstlevely)
                 self.state = '1 Level'
         if self.game.UP_KEY:
@@ -172,6 +179,9 @@ class LevelSelection(Menu):
             elif self.state == '4 Level' and self.game.unlocked_levels > 2:
                 self.cursor_rect.midtop = (self.thirdlevelx + self.offset, self.thirdlevely)
                 self.state = '3 Level'
+            elif self.state == '5 Level' and self.game.unlocked_levels > 2:
+                self.cursor_rect.midtop = (self.fourthlevelx + self.offset, self.fourthlevely)
+                self.state = '4 Level'
         if self.game.START_KEY:
             if self.state == "1 Level":
                 self.game.level = Level(1, players_count, self.game)
@@ -184,6 +194,9 @@ class LevelSelection(Menu):
                 self.game.playing = True
             elif self.state == "4 Level":
                 self.game.level = Level(4, players_count, self.game)
+                self.game.playing = True
+            elif self.state == "5 Level":
+                self.game.level = Level(5, players_count, self.game)
                 self.game.playing = True
         self.run_display = False
 

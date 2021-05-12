@@ -20,4 +20,12 @@ for i in range(2):
                                 SPRITES.subsurface((128 * i + 96,
                                                     j * 16, 16, 16)),
                                 SPRITES.subsurface((128 * i + 32,
-                                                    j * 16, 16, 16))])
+                                                    j * 16, 16, 16)),
+                                SPRITES.subsurface((128 * i,
+                                                     j * 16 + 128, 16, 16)),
+                                SPRITES.subsurface((128 * i + 64,
+                                                     j * 16 + 128, 16, 16)),
+                                SPRITES.subsurface((128 * i + 96,
+                                                     j * 16 + 128, 16, 16)),
+                                SPRITES.subsurface((128 * i + 32,
+                                                     j * 16 + 128, 16, 16))])
