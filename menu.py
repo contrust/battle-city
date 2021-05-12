@@ -252,7 +252,7 @@ class GameOverMenu(Menu):
             if self.game.START_KEY or self.game.BACK_KEY:
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
-                self.game.level = Level(1, players_count, self)
+                self.game.level = Level(1, players_count, self.game)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('GAME OVER', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2)
             self.blit_screen()
@@ -281,7 +281,7 @@ class NextRoundMenu(Menu):
                             player.to_start(64, 208)
                         if player.number == 1:
                             player.to_start(128, 208)
-                self.game.level = Level(self.game.level.number + 1, players_count, self)
+                self.game.level = Level(self.game.level.number + 1, players_count, self.game)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             for i in range(len(self.game.level.players)):

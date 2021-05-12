@@ -187,6 +187,7 @@ class Game():
                     if event.key == K_F10:
                         if player.kind != 3:
                             player.kind += 1
+                            player.get_type()
                     if event.key == K_F11:
                         for protecting_block in self.level.protecting_blocks:
                             self.level.map.append(Tile(BETON, protecting_block))
