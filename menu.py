@@ -189,10 +189,11 @@ class LevelSelection(Menu):
 class OptionsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = 'Volume'
-        self.volx, self.voly = self.mid_w, self.mid_h + 20
-        self.controlsx, self.controlsy = self.mid_w, self.mid_h + 40
-        self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
+        self.state = 'Fullscreen'
+        self.fullscreenx, self.fullscreeny = self.mid_w, self.mid_h + 20
+        self.fsstatusx, self.fsstatusy = self.mid_w + 84, self.mid_h + 20
+        self.volx, self.voly = self.mid_w, self.mid_h + 40
+        self.cursor_rect.midtop = (self.fullscreenx + self.offset, self.fullscreeny)
 
     def display_menu(self):
         self.run_display = True
@@ -201,8 +202,12 @@ class OptionsMenu(Menu):
             self.check_input()
             self.game.small_display.fill((0, 0, 0))
             self.game.draw_text('Options', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
-            self.game.draw_text("Volume", 15, self.volx, self.voly)
-            self.game.draw_text("Controls", 15, self.controlsx, self.controlsy)
+            self.game.draw_text("Fullscreen", 12, self.fullscreenx, self.fullscreeny)
+            if self.game.toggle_fullscreen:
+                self.game.draw_text("On", 12, self.fsstatusx, self.fsstatusy)
+            else:
+                self.game.draw_text("Off", 12, self.fsstatusx, self.fsstatusy)
+            self.game.draw_text("Volume", 12, self.volx, self.voly)
             self.draw_cursor()
             self.blit_screen()
 
@@ -210,16 +215,23 @@ class OptionsMenu(Menu):
         if self.game.BACK_KEY:
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
-        elif self.game.UP_KEY or self.game.DOWN_KEY:
-            if self.state == 'Volume':
-                self.state = 'Controls'
-                self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
-            elif self.state == 'Controls':
+        if self.game.UP_KEY or self.game.DOWN_KEY:
+            if self.state == 'Fullscreen':
                 self.state = 'Volume'
                 self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-        elif self.game.START_KEY:
-            # Здесь можно сделать контролы и громкость, но мне лень, да и это в принципе не нужно
-            pass
+            elif self.state == 'Volume':
+                self.state = 'Fullscreen'
+                self.cursor_rect.midtop = (self.fullscreenx + self.offset, self.fullscreeny)
+        if self.game.START_KEY:
+            if self.state == 'Fullscreen':
+                if self.game.toggle_fullscreen:
+                    for x in range(2):
+                        self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H), pygame.SCALED | pygame.RESIZABLE)
+                    self.game.toggle_fullscreen = False
+                else:
+                    self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
+                    self.game.toggle_fullscreen = True
+
 
 class CreditsMenu(Menu):
     def __init__(self, game):

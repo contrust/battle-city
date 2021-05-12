@@ -25,6 +25,7 @@ class Game():
         self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), SCALED | FULLSCREEN)
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
+        self.toggle_fullscreen = True
         self.font_name = '8-BIT WONDER.TTF'
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
