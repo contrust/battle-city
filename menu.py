@@ -19,7 +19,9 @@ class Menu():
         self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
-        self.game.window.blit(self.game.small_display, (0, 0))
+        self.game.background.fill(self.game.BLACK)
+        self.game.window.blit(self.game.background, (0, 0))
+        self.game.window.blit(self.game.small_display, (16, 0))
         pygame.display.update()
         self.game.reset_keys()
 
@@ -253,7 +255,7 @@ class CreditsMenu(Menu):
             if self.game.START_KEY or self.game.BACK_KEY:
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
-                self.game.level = Level(1, players_count, self)
+                self.game.level = Level(1, players_count, self.game)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text('Artyom Borisov', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)

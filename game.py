@@ -21,14 +21,15 @@ class Game():
         pygame.init()
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 208, 224
-        self.small_display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
-        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), SCALED | FULLSCREEN)
+        self.small_display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+        self.background = pygame.Surface((self.DISPLAY_W + 32, self.DISPLAY_H))
+        self.window = pygame.display.set_mode((self.DISPLAY_W + 32, self.DISPLAY_H), SCALED | FULLSCREEN)
         self.volume_level = 0.3
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
         self.toggle_fullscreen = True
         self.font_name = '8-BIT WONDER.TTF'
-        self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
+        self.BLACK, self.WHITE, self.GRAY = (0, 0, 0), (255, 255, 255), (60, 60, 60)
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
@@ -43,6 +44,7 @@ class Game():
 
     def game_loop(self):
         while self.playing:
+            self.background.fill(self.GRAY)
             self.small_display.fill(self.BLACK)
             self.check_events()
             if self.level.get_score() >= 4:
@@ -132,7 +134,8 @@ class Game():
             self.draw(self.level.castle)
             if self.BACK_KEY:
                 self.playing = False
-            self.window.blit(self.small_display, (0, 0))
+            self.window.blit(self.background, (0, 0))
+            self.window.blit(self.small_display, (16, 0))
             pygame.display.update()
             self.reset_keys()
             self.CLOCK.tick(60)
