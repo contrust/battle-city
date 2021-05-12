@@ -193,6 +193,7 @@ class OptionsMenu(Menu):
         self.fullscreenx, self.fullscreeny = self.mid_w, self.mid_h + 20
         self.fsstatusx, self.fsstatusy = self.mid_w + 84, self.mid_h + 20
         self.volx, self.voly = self.mid_w, self.mid_h + 40
+        self.volstatusx, self.volstatusy = self.mid_w + 84, self.mid_h + 40
         self.cursor_rect.midtop = (self.fullscreenx + self.offset, self.fullscreeny)
 
     def display_menu(self):
@@ -208,6 +209,7 @@ class OptionsMenu(Menu):
             else:
                 self.game.draw_text("Off", 12, self.fsstatusx, self.fsstatusy)
             self.game.draw_text("Volume", 12, self.volx, self.voly)
+            self.game.draw_text(str(round(self.game.volume_level * 10)), 12, self.volstatusx, self.volstatusy)
             self.draw_cursor()
             self.blit_screen()
 
@@ -231,6 +233,12 @@ class OptionsMenu(Menu):
                 else:
                     self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
                     self.game.toggle_fullscreen = True
+        if self.state == 'Volume':
+            if self.game.RIGHT_KEY:
+                self.game.volume_level = round(self.game.volume_level + 0.1, 1)
+            if self.game.LEFT_KEY:
+                if self.game.volume_level >= 0.1:
+                    self.game.volume_level = round(self.game.volume_level - 0.1, 1)
 
 
 class CreditsMenu(Menu):

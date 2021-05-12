@@ -17,12 +17,13 @@ from level import Level
 class Game():
     def __init__(self):
         self.running, self.playing = True, False
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
         pygame.init()
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 208, 224
         self.small_display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H), SCALED | FULLSCREEN)
+        self.volume_level = 0.3
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
         self.toggle_fullscreen = True
@@ -139,21 +140,21 @@ class Game():
     def win(self):
         self.playing = False
         pygame.mixer.music.load('sounds/win_game.mp3')
-        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.credits
 
     def go_to_next_round(self):
         self.playing = False
         pygame.mixer.music.load('sounds/next_level.mp3')
-        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.next_round_menu
 
     def game_over(self):
         self.playing = False
         pygame.mixer.music.load('sounds/game_over.mp3')
-        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.game_over_menu
 
@@ -173,6 +174,10 @@ class Game():
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
+                if event.key == pygame.K_RIGHT:
+                    self.RIGHT_KEY = True
+                if event.key == pygame.K_LEFT:
+                    self.LEFT_KEY = True
             if event.type == KEYDOWN:
                 for player in self.level.players:
                     if event.key in player.controls.keys():
@@ -206,7 +211,7 @@ class Game():
                         player.pressed_keys[player.controls[event.key]] = False
 
     def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
 
     def draw_text(self, text, size, x, y):
         font = pygame.font.Font(self.font_name,size)

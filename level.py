@@ -11,6 +11,7 @@ class Level:
         self.map = []
         self.number = number
         self.game = game
+        self.volume_level = self.game.volume_level
         with open(f'maps/{number}.txt', 'r') as f:
             y = 0
             for line in f:
