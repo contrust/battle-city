@@ -27,11 +27,11 @@ class MainMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
         self.state = "1 Player"
-        self.oneplayerx, self.oneplayery = self.mid_w, self.mid_h + 10
-        self.twoplayersx, self.twoplayersy = self.mid_w, self.mid_h + 30
-        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
-        self.creditsx, self.creditsy = self.mid_w, self.mid_h + 70
-        self.exitx, self.exity = self.mid_w, self.mid_h + 90
+        self.oneplayerx, self.oneplayery = self.mid_w, self.mid_h - 10
+        self.twoplayersx, self.twoplayersy = self.mid_w, self.mid_h + 10
+        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 30
+        self.creditsx, self.creditsy = self.mid_w, self.mid_h + 50
+        self.exitx, self.exity = self.mid_w, self.mid_h + 70
         self.cursor_rect.midtop = (self.oneplayerx + self.offset, self.oneplayery)
 
     def display_menu(self):
@@ -40,7 +40,7 @@ class MainMenu(Menu):
             self.game.check_events()
             self.check_input()
             self.game.small_display.fill(self.game.BLACK)
-            self.game.draw_text('Battle City', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.game.draw_text('Battle City', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 40)
             self.game.draw_text("1 Player", 15, self.oneplayerx, self.oneplayery)
             self.game.draw_text("2 Players", 15, self.twoplayersx, self.twoplayersy)
             self.game.draw_text("Options", 15, self.optionsx, self.optionsy)
@@ -283,7 +283,7 @@ class NextRoundMenu(Menu):
                             player.to_start(128, 208)
                 self.game.level = Level(self.game.level.number + 1, players_count, self.game)
             self.game.small_display.fill(self.game.BLACK)
-            self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
+            self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 40)
             for i in range(len(self.game.level.players)):
                 for j in range(4):
                     self.game.draw(self.enemies[j])
