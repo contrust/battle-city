@@ -15,5 +15,5 @@ class Castle:
         self.image = self.images[1]
         self.is_alive = False
         pygame.mixer.music.load('sounds/game_over.mp3')
-        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.set_volume(self.level.volume_level)
         pygame.mixer.music.play()
