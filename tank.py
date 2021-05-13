@@ -1,6 +1,6 @@
 import pygame
 from sprites import TANKS_IMAGES
-from settings import DISPLAY
+from globals import DISPLAY
 from bullet import Bullet
 (BASIC, FAST, RAPID, ARMORED) = range(4)
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)

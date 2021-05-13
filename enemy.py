@@ -1,11 +1,11 @@
 import pygame
-from settings import get_hit_list
+from globals import get_hit_list
 from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
                   DIRECTION_RIGHT, DIRECTION_LEFT)
 from sprites import TANKS_IMAGES
 from random import randrange
 from queue import Queue
-from settings import DISPLAY
+from globals import DISPLAY
 from tile import GRASS
 from explosion import Explosion
 

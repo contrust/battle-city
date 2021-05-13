@@ -3,7 +3,7 @@ from pygame.locals import *
 
 from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
                   DIRECTION_RIGHT, DIRECTION_LEFT)
-from settings import get_hit_list
+from globals import get_hit_list
 from sprites import TANKS_IMAGES
 from bonus import SHOVEL, STAR, GRENADE, TANK_BONUS
 from tile import Tile, GRASS, BETON

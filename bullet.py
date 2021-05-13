@@ -1,6 +1,6 @@
 from sprites import BULLET_IMAGES
 import pygame
-from settings import DISPLAY, get_hit_list
+from globals import DISPLAY, get_hit_list
 from tile import BRICK, GRASS, BETON
 from explosion import Explosion
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)

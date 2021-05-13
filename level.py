@@ -3,7 +3,7 @@ from bonus import Bonus
 from castle import *
 from random import randrange
 from tile import Tile, BRICK, BETON
-from settings import DISPLAY
+from globals import DISPLAY
 
 
 class Level:
