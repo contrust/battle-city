@@ -2,8 +2,8 @@ import pygame
 pygame.init()
 pygame.display.set_caption('Battle City')
 DISPLAY_W, DISPLAY_H = 480, 270
-display = pygame.Surface((DISPLAY_W,DISPLAY_H))
-window = pygame.display.set_mode(((DISPLAY_W,DISPLAY_H)))
+display = pygame.Surface((DISPLAY_W, DISPLAY_H))
+window = pygame.display.set_mode((DISPLAY_W, DISPLAY_H))
 SPRITES = pygame.image.load('sprite.png').convert_alpha()
 BOLD_SPRITES = pygame.image.load('sprite.png')
 BULLET_IMAGES = [SPRITES.subsurface((322, 102, 4, 4)),
@@ -22,10 +22,10 @@ for i in range(2):
                                 SPRITES.subsurface((128 * i + 32,
                                                     j * 16, 16, 16)),
                                 SPRITES.subsurface((128 * i,
-                                                     j * 16 + 128, 16, 16)),
+                                                    j * 16 + 128, 16, 16)),
                                 SPRITES.subsurface((128 * i + 64,
-                                                     j * 16 + 128, 16, 16)),
+                                                    j * 16 + 128, 16, 16)),
                                 SPRITES.subsurface((128 * i + 96,
-                                                     j * 16 + 128, 16, 16)),
+                                                    j * 16 + 128, 16, 16)),
                                 SPRITES.subsurface((128 * i + 32,
-                                                     j * 16 + 128, 16, 16))])
+                                                    j * 16 + 128, 16, 16))])

@@ -4,14 +4,14 @@ import pygame
 
 
 class Bonus:
-    def __init__(self, type, position, level):
-        self.type = type
+    def __init__(self, bonus_type, position, level):
+        self.type = bonus_type
         self.level = level
         self.images = [BOLD_SPRITES.subsurface((287, 111, 16, 15)),
                        BOLD_SPRITES.subsurface((303, 111, 16, 15)),
                        BOLD_SPRITES.subsurface((319, 111, 16, 15)),
                        BOLD_SPRITES.subsurface((335, 111, 16, 15))]
-        self.image = self.images[type]
+        self.image = self.images[bonus_type]
         self.rect = pygame.Rect(position[0], position[1], 16, 15)
 
     def die(self):

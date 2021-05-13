@@ -87,20 +87,16 @@ class Tank:
         self.rect.topleft = round(self.x), round(self.y)
 
     def align_static_collision(self, entity):
-        if (self.rect.bottom >= entity.rect.top and
-                self.rect.bottom <= entity.rect.bottom and
+        if (entity.rect.top <= self.rect.bottom <= entity.rect.bottom and
                 self.direction == DIRECTION_DOWN):
-                        self.rect.bottom = entity.rect.top
-        if (self.rect.top <= entity.rect.bottom and
-                self.rect.top >= entity.rect.top and
+            self.rect.bottom = entity.rect.top
+        if (entity.rect.bottom >= self.rect.top >= entity.rect.top and
                 self.direction == DIRECTION_UP):
             self.rect.top = entity.rect.bottom
-        if (self.rect.left <= entity.rect.right and
-                self.rect.left >= entity.rect.left and
+        if (entity.rect.right >= self.rect.left >= entity.rect.left and
                 self.direction == DIRECTION_LEFT):
             self.rect.left = entity.rect.right
-        if (self.rect.right >= entity.rect.left and
-                self.rect.right <= entity.rect.right and
+        if (entity.rect.left <= self.rect.right <= entity.rect.right and
                 self.direction == DIRECTION_RIGHT):
             self.rect.right = entity.rect.left
         self.x, self.y = self.rect.topleft

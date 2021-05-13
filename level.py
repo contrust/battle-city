@@ -2,7 +2,7 @@ from player import Player
 from bonus import Bonus
 from castle import *
 from random import randrange
-from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
+from tile import Tile, BRICK, BETON
 from settings import DISPLAY
 
 
@@ -18,14 +18,14 @@ class Level:
                 line = line.strip()
                 for x in range(len(line)):
                     if line[x] != '.':
-                        type = int(line[x])
-                        if type == BRICK or type == BETON:
+                        tile_type = int(line[x])
+                        if tile_type == BRICK or tile_type == BETON:
                             for i in range(4):
-                                self.map.append(Tile(type,
+                                self.map.append(Tile(tile_type,
                                                      (x * 16 + 8 * (i % 2),
                                                       y * 16 + 8 * (i // 2))))
                         else:
-                            self.map.append(Tile(type, (x * 16, y * 16)))
+                            self.map.append(Tile(tile_type, (x * 16, y * 16)))
                 y += 1
         self.protecting_blocks = (
             (88, 200),

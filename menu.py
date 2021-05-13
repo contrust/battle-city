@@ -2,18 +2,21 @@ import pygame
 import sys
 from level import Level
 from enemy import Enemy
-from random import randrange
 
 players_count = 1
+screen_offset = 16
 
 
-class Menu():
+class Menu:
     def __init__(self, game):
         self.game = game
         self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
         self.run_display = True
         self.cursor_rect = pygame.Rect(0, 0, 20, 20)
         self.offset = - 75
+        pygame.mixer.music.load('sounds/main_theme.mp3')
+        pygame.mixer.music.set_volume(self.game.volume_level)
+        pygame.mixer.music.play()
 
     def draw_cursor(self):
         self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
@@ -21,9 +24,10 @@ class Menu():
     def blit_screen(self):
         self.game.background.fill(self.game.BLACK)
         self.game.window.blit(self.game.background, (0, 0))
-        self.game.window.blit(self.game.small_display, (16, 0))
+        self.game.window.blit(self.game.small_display, (screen_offset, 0))
         pygame.display.update()
         self.game.reset_keys()
+
 
 class MainMenu(Menu):
     def __init__(self, game):
@@ -50,7 +54,6 @@ class MainMenu(Menu):
             self.game.draw_text("Exit", 15, self.exitx, self.exity)
             self.draw_cursor()
             self.blit_screen()
-
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
@@ -229,6 +232,7 @@ class OptionsMenu(Menu):
             self.blit_screen()
 
     def check_input(self):
+        global screen_offset
         if self.game.BACK_KEY:
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
@@ -243,11 +247,14 @@ class OptionsMenu(Menu):
             if self.state == 'Fullscreen':
                 if self.game.toggle_fullscreen:
                     for x in range(2):
-                        self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H), pygame.SCALED | pygame.RESIZABLE)
+                        self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H),
+                                                                   pygame.SCALED | pygame.RESIZABLE)
                     self.game.toggle_fullscreen = False
                 else:
-                    self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H), pygame.SCALED | pygame.FULLSCREEN)
+                    self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H),
+                                                               pygame.SCALED | pygame.FULLSCREEN)
                     self.game.toggle_fullscreen = True
+                screen_offset = 0
         if self.state == 'Volume':
             if self.game.RIGHT_KEY:
                 self.game.volume_level = round(self.game.volume_level + 0.1, 1)
@@ -275,6 +282,7 @@ class CreditsMenu(Menu):
             self.game.draw_text('Artyom Burgart', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 40)
             self.blit_screen()
 
+
 class GameOverMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
@@ -292,14 +300,18 @@ class GameOverMenu(Menu):
             self.game.draw_text('GAME OVER', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2)
             self.blit_screen()
 
+
 class NextRoundMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.enemies = [Enemy(0, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 - 6), 0, self.game.level),
-                        Enemy(1, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 14), 0, self.game.level),
-                        Enemy(2, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 34), 0, self.game.level),
-                        Enemy(3, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6, self.game.DISPLAY_H / 2 + 54), 0, self.game.level)]
-
+        self.enemies = [Enemy(0, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6,
+                                            self.game.DISPLAY_H / 2 - 6), 0, self.game.level),
+                        Enemy(1, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6,
+                                            self.game.DISPLAY_H / 2 + 14), 0, self.game.level),
+                        Enemy(2, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6,
+                                            self.game.DISPLAY_H / 2 + 34), 0, self.game.level),
+                        Enemy(3, 1 / 2, 0, (self.game.DISPLAY_W / 2 - 6,
+                                            self.game.DISPLAY_H / 2 + 54), 0, self.game.level)]
 
     def display_menu(self):
         global players_count
@@ -311,11 +323,11 @@ class NextRoundMenu(Menu):
                 self.run_display = False
                 self.game.playing = True
                 for player in self.game.level.players:
-                        player.score = [0, 0, 0, 0]
-                        if player.number == 0:
-                            player.to_start(64, 208)
-                        if player.number == 1:
-                            player.to_start(128, 208)
+                    player.score = [0, 0, 0, 0]
+                    if player.number == 0:
+                        player.to_start(64, 208)
+                    if player.number == 1:
+                        player.to_start(128, 208)
                 self.game.level = Level(self.game.level.number + 1, players_count, self.game)
             self.game.small_display.fill(self.game.BLACK)
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 40)
@@ -323,7 +335,9 @@ class NextRoundMenu(Menu):
                 for j in range(4):
                     self.game.draw(self.enemies[j])
                     if self.game.level.players[i].score[j] == 0:
-                        self.game.draw_text("O", 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
+                        self.game.draw_text("O", 15, self.game.DISPLAY_W / 2 - 50 + 100 * i,
+                                            self.game.DISPLAY_H / 2 + 20 * j)
                     else:
-                        self.game.draw_text(str(self.game.level.players[i].score[j]), 15, self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
+                        self.game.draw_text(str(self.game.level.players[i].score[j]), 15,
+                                            self.game.DISPLAY_W / 2 - 50 + 100 * i, self.game.DISPLAY_H / 2 + 20 * j)
             self.blit_screen()

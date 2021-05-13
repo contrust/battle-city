@@ -1,23 +1,16 @@
-import pygame
 from menu import *
-import sys
-
 from pygame.locals import *
 from random import randrange
-from sprites import SPRITES, BOLD_SPRITES, BULLET_IMAGES, TANKS_IMAGES
-from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
-from tank import (Tank, BASIC, FAST, RAPID, ARMORED, DIRECTION_UP,
-            DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT)
-from settings import WINDOW_SIZE, SCREEN, DISPLAY, get_hit_list
-from bullet import Bullet
+from tile import Tile, BETON
 from enemy import Enemy
 from level import Level
 
 
-class Game():
+class Game:
     def __init__(self):
         self.running, self.playing = True, False
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, \
+            self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
         pygame.init()
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 208, 224
@@ -47,7 +40,7 @@ class Game():
             self.background.fill(self.GRAY)
             self.small_display.fill(self.BLACK)
             self.check_events()
-            if self.level.get_score() >= 4:
+            if self.level.get_score() >= 10:
                 if self.level.number == 5:
                     self.win()
                 else:
@@ -82,26 +75,33 @@ class Game():
                     if self.level.get_score() + len(self.level.enemies) < 5:
                         rnd = randrange(0, 2)
                         if rnd == 0:
-                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 0, self.level))
+                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                            (96 * randrange(3), 0), 0, self.level))
                         if rnd == 1:
-                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 1, self.level))
+                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                            (96 * randrange(3), 0), 1, self.level))
                     else:
-                        self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0, (96 * randrange(3), 0), 2, self.level))
+                        self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                        (96 * randrange(3), 0), 2, self.level))
             for enemy in self.level.enemies:
                 self.draw(enemy)
                 if not randrange(140):
-                    if enemy.target == 2:
-                        enemy.find_path((96, 208), 1, self.level)
+                    live_players = []
+                    for player in self.level.players:
+                        if player.is_alive:
+                            live_players.append(player.number)
                     if enemy.target == 0:
-                        try:
-                            enemy.find_path(self.level.players[0].rect.topleft, 0, self.level)
-                        except IndexError:
-                            enemy.find_path(self.level.players[1].rect.topleft, 0, self.level)
+                        if enemy.target in live_players:
+                            enemy.find_path(self.level.players[0].rect.topleft, 0)
+                        elif len(self.level.players) > 1:
+                            enemy.find_path(self.level.players[1].rect.topleft, 0)
                     if enemy.target == 1:
-                        try:
-                            enemy.find_path(self.level.players[1].rect.topleft, 0, self.level)
-                        except IndexError:
-                            enemy.find_path(self.level.players[0].rect.topleft, 0, self.level)
+                        if enemy.target in live_players and len(self.level.players) > 1:
+                            enemy.find_path(self.level.players[1].rect.topleft, 0)
+                        else:
+                            enemy.find_path(self.level.players[0].rect.topleft, 0)
+                    if enemy.target == 2:
+                        enemy.find_path((96, 208), 1)
                 enemy.move()
                 if not randrange(50):
                     enemy.fire()
@@ -161,8 +161,6 @@ class Game():
         pygame.mixer.music.play()
         self.curr_menu = self.game_over_menu
 
-
-
     def check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -214,11 +212,12 @@ class Game():
                         player.pressed_keys[player.controls[event.key]] = False
 
     def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, \
+            self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
 
     def draw_text(self, text, size, x, y):
-        font = pygame.font.Font(self.font_name,size)
+        font = pygame.font.Font(self.font_name, size)
         text_surface = font.render(text, True, self.WHITE)
         text_rect = text_surface.get_rect()
-        text_rect.center = (x,y)
-        self.small_display.blit(text_surface,text_rect)
+        text_rect.center = (x, y)
+        self.small_display.blit(text_surface, text_rect)

@@ -6,7 +6,7 @@ from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
 from settings import get_hit_list
 from sprites import TANKS_IMAGES
 from bonus import SHOVEL, STAR, GRENADE, TANK_BONUS
-from tile import Tile, BRICK, GRASS, BETON, ICE, WATER
+from tile import Tile, GRASS, BETON
 from explosion import Explosion
 
 
@@ -16,9 +16,11 @@ class Player(Tank):
         Tank.__init__(self, 0, kind, speed, direction, position, level)
         self.number = number
         if self.number == 0:
-            self.controls = {K_UP: DIRECTION_UP, K_DOWN: DIRECTION_DOWN, K_RIGHT: DIRECTION_RIGHT, K_LEFT: DIRECTION_LEFT}
+            self.controls = {K_UP: DIRECTION_UP, K_DOWN: DIRECTION_DOWN,
+                             K_RIGHT: DIRECTION_RIGHT, K_LEFT: DIRECTION_LEFT}
         elif self.number == 1:
-            self.controls = {K_w: DIRECTION_UP, K_s: DIRECTION_DOWN, K_d: DIRECTION_RIGHT, K_a: DIRECTION_LEFT}
+            self.controls = {K_w: DIRECTION_UP, K_s: DIRECTION_DOWN,
+                             K_d: DIRECTION_RIGHT, K_a: DIRECTION_LEFT}
         self.pressed_keys = [False] * 4
         self.is_alive = True
         self.lifes = 3
@@ -60,7 +62,7 @@ class Player(Tank):
             for tile in get_hit_list(self.rect, self.level.map):
                 if tile.type != GRASS:
                     self.align_static_collision(tile)
-            for enemy in get_hit_list(self.rect, self.level.enemies):
+            for _ in get_hit_list(self.rect, self.level.enemies):
                 self.align_dynamic_collision()
             if len(self.level.players) == 2:
                 if self.rect.colliderect(self.level.players[(self.number + 1) % 2]):

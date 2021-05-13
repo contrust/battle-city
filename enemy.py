@@ -3,18 +3,25 @@ from settings import get_hit_list
 from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
                   DIRECTION_RIGHT, DIRECTION_LEFT)
 from sprites import TANKS_IMAGES
-from random import randrange, choice
+from random import randrange
 from queue import Queue
 from settings import DISPLAY
-from tile import BRICK, GRASS, BETON, ICE, WATER
+from tile import GRASS
 from explosion import Explosion
-(PLAYER, CASTLE) = range(2)
 
 
 class Node:
     def __init__(self, value, previous=None):
         self.value = value
         self.previous = previous
+
+
+def get_point(path_point):
+    a = []
+    while path_point.previous is not None:
+        a.append(path_point.value)
+        path_point = path_point.previous
+    return a[::-1]
 
 
 class Enemy(Tank):
@@ -31,7 +38,7 @@ class Enemy(Tank):
             self.return_on_map()
             self.direction = randrange(4)
         self.make_step()
-        for player in get_hit_list(self.rect, self.level.players):
+        for _ in get_hit_list(self.rect, self.level.players):
             self.is_moving_to_target = False
             self.align_dynamic_collision()
             return
@@ -57,10 +64,8 @@ class Enemy(Tank):
                     self.align_static_collision(enemy)
                     self.direction = randrange(4)
                 self.make_step()
-        if self.is_moving_to_target and self.target == 0:
-            self.get_direction_to_target(PLAYER)
-        if self.is_moving_to_target and self.target == 1:
-            self.get_direction_to_target(CASTLE)
+        if self.is_moving_to_target:
+            self.get_direction_to_target(self.target)
 
     def get_direction_to_target(self, target):
         if len(self.path) != 0:
@@ -79,12 +84,24 @@ class Enemy(Tank):
             if change[1] < 0:
                 self.direction = DIRECTION_UP
         else:
-            if target == PLAYER:
-                self.find_path(self.level.players[0].rect.topleft, 0, self.level)
-            elif target == CASTLE:
-                self.find_path((96, 208), 1, self.level)
+            live_players = []
+            for player in self.level.players:
+                if player.is_alive:
+                    live_players.append(player.number)
+            if target == 0:
+                if target in live_players:
+                    self.find_path(self.level.players[0].rect.topleft, 0)
+                elif len(self.level.players) > 1:
+                    self.find_path(self.level.players[1].rect.topleft, 0)
+            if target == 1:
+                if target in live_players and len(self.level.players) > 1:
+                    self.find_path(self.level.players[1].rect.topleft, 0)
+                else:
+                    self.find_path(self.level.players[0].rect.topleft, 0)
+            if target == 2:
+                self.find_path((96, 208), 1)
 
-    def find_path(self, path_point, target, level):
+    def find_path(self, path_point, target):
         self.path = []
         start_point = Node(self.rect.topleft)
         point = (self.rect.x - self.rect.x % 8,
@@ -92,8 +109,7 @@ class Enemy(Tank):
         path_point = (path_point[0] - path_point[0] % 8,
                       path_point[1] - path_point[1] % 8)
         rect = pygame.Rect(self.rect.x, self.rect.y, 16, 16)
-        paths = {}
-        paths[point] = Node(point, start_point)
+        paths = {point: Node(point, start_point)}
         points = Queue()
         points.put(point)
         while not points.empty():
@@ -106,7 +122,7 @@ class Enemy(Tank):
                         rect.x, rect.y = moved_point
                         if dx != 0 and dy != 0 or moved_point in paths.keys():
                             continue
-                        if target == PLAYER:
+                        if target == 0:
                             for entity in get_hit_list(rect, self.level.map):
                                 if entity.type != GRASS:
                                     break
@@ -116,10 +132,10 @@ class Enemy(Tank):
                                     Node(moved_point, paths[point]))
                                 if path_point == moved_point:
                                     self.path = (
-                                        self.get_point(paths[path_point]))
+                                        get_point(paths[path_point]))
                                     self.is_moving_to_target = True
                                     return
-                        if target == CASTLE:
+                        if target == 1:
                             for entity in get_hit_list(rect, self.level.map):
                                 if (entity.type != GRASS and
                                    entity.rect.topleft not in self.level.protecting_blocks):
@@ -130,16 +146,9 @@ class Enemy(Tank):
                                    Node(moved_point, paths[point]))
                                 if path_point == moved_point:
                                     self.path = (
-                                       self.get_point(paths[path_point]))
+                                       get_point(paths[path_point]))
                                     self.is_moving_to_target = True
                                     return
-
-    def get_point(self, path_point):
-        a = []
-        while path_point.previous is not None:
-            a.append(path_point.value)
-            path_point = path_point.previous
-        return a[::-1]
 
     def die(self):
         pygame.mixer.music.load('sounds/tank_explosion.mp3')
