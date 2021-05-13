@@ -41,104 +41,105 @@ class Game:
             self.small_display.fill(self.BLACK)
             self.check_events()
             if self.level.get_score() >= 10:
-                if self.level.number == 5:
-                    self.win()
-                else:
-                    if self.level.number == self.unlocked_levels:
-                        self.unlocked_levels += 1
-                    self.go_to_next_round()
+                self.process_next_round_transition()
             if not self.level.castle.is_alive:
                 self.game_over()
             if not self.level.players:
                 continue
             if not self.level.players[0].is_alive:
-                if self.level.players[0].lifes:
-                    self.level.players[0].kind = 0
-                    self.level.players[0].get_type()
-                    self.level.players[0].is_alive = True
-                else:
-                    self.game_over()
+                self.process_player_death(0)
             if len(self.level.players) == 2:
                 if not self.level.players[1].is_alive:
-                    if self.level.players[1].lifes:
-                        self.level.players[1].kind = 0
-                        self.level.players[1].get_type()
-                        self.level.players[1].is_alive = True
-                    else:
-                        self.game_over()
+                    self.process_player_death(1)
             for player in self.level.players:
                 self.draw(player)
                 player.move()
-
             if not randrange(250):
-                if len(self.level.enemies) < 4:
-                    if self.level.get_score() + len(self.level.enemies) < 5:
-                        rnd = randrange(0, 2)
-                        if rnd == 0:
-                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                            (96 * randrange(3), 0), 0, self.level))
-                        if rnd == 1:
-                            self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                            (96 * randrange(3), 0), 1, self.level))
-                    else:
-                        self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                        (96 * randrange(3), 0), 2, self.level))
-            for enemy in self.level.enemies:
-                self.draw(enemy)
-                if not randrange(140):
-                    live_players = []
-                    for player in self.level.players:
-                        if player.is_alive:
-                            live_players.append(player.number)
-                    if enemy.target == 0:
-                        if enemy.target in live_players:
-                            enemy.find_path(self.level.players[0].rect.topleft, 0)
-                        elif len(self.level.players) > 1:
-                            enemy.find_path(self.level.players[1].rect.topleft, 0)
-                    if enemy.target == 1:
-                        if enemy.target in live_players and len(self.level.players) > 1:
-                            enemy.find_path(self.level.players[1].rect.topleft, 0)
-                        else:
-                            enemy.find_path(self.level.players[0].rect.topleft, 0)
-                    if enemy.target == 2:
-                        enemy.find_path((96, 208), 1)
-                enemy.move()
-                if not randrange(50):
-                    enemy.fire()
-
+                self.create_random_enemy()
+            self.update_enemies()
             for bullet in self.level.bullets:
                 self.draw(bullet)
-
             for tile in self.level.map:
                 self.draw(tile)
-
             for bonus in self.level.bonuses:
                 self.draw(bonus)
-
             for bullet in self.level.bullets[:]:
                 bullet.fly()
-
-            for explosion in self.level.explosions:
-                self.draw(explosion)
-                if explosion.type == 0:
-                    explosion.image = explosion.images[explosion.stage // 2]
-                    explosion.stage += 1
-                    if explosion.stage == 8:
-                        self.level.explosions.remove(explosion)
-                if explosion.type == 1:
-                    explosion.image = explosion.images[explosion.stage // 3 + 4]
-                    explosion.stage += 1
-                    if explosion.stage == 9:
-                        self.level.explosions.remove(explosion)
-
+            self.update_explosions()
             self.draw(self.level.castle)
-            if self.BACK_KEY:
-                self.playing = False
             self.window.blit(self.background, (0, 0))
             self.window.blit(self.small_display, (16, 0))
             pygame.display.update()
             self.reset_keys()
             self.CLOCK.tick(60)
+
+    def process_next_round_transition(self):
+        if self.level.number == 5:
+            self.win()
+        else:
+            if self.level.number == self.unlocked_levels:
+                self.unlocked_levels += 1
+            self.go_to_next_round()
+
+    def process_player_death(self, number):
+        if self.level.players[number].lifes:
+            self.level.players[number].kind = 0
+            self.level.players[number].get_type()
+            self.level.players[number].is_alive = True
+        else:
+            self.game_over()
+
+    def create_random_enemy(self):
+        if len(self.level.enemies) < 4:
+            if self.level.get_score() + len(self.level.enemies) < 5:
+                rnd = randrange(0, 2)
+                if rnd == 0:
+                    self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                    (96 * randrange(3), 0), 0, self.level))
+                if rnd == 1:
+                    self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                    (96 * randrange(3), 0), 1, self.level))
+            else:
+                self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
+                                                (96 * randrange(3), 0), 2, self.level))
+
+    def update_explosions(self):
+        for explosion in self.level.explosions:
+            self.draw(explosion)
+            if explosion.type == 0:
+                explosion.image = explosion.images[explosion.stage // 2]
+                explosion.stage += 1
+                if explosion.stage == 8:
+                    self.level.explosions.remove(explosion)
+            if explosion.type == 1:
+                explosion.image = explosion.images[explosion.stage // 3 + 4]
+                explosion.stage += 1
+                if explosion.stage == 9:
+                    self.level.explosions.remove(explosion)
+
+    def update_enemies(self):
+        for enemy in self.level.enemies:
+            self.draw(enemy)
+            if not randrange(140):
+                live_players = []
+                for player in self.level.players:
+                    if player.is_alive:
+                        live_players.append(player.number)
+                if enemy.target == 0:
+                    if enemy.target in live_players:
+                        enemy.find_path(self.level.players[0].rect.topleft, 0)
+                    elif len(self.level.players) > 1:
+                        enemy.find_path(self.level.players[1].rect.topleft, 0)
+                if enemy.target == 1:
+                    if enemy.target in live_players and len(self.level.players) > 1:
+                        enemy.find_path(self.level.players[1].rect.topleft, 0)
+                    else:
+                        enemy.find_path(self.level.players[0].rect.topleft, 0)
+                if enemy.target == 2:
+                    enemy.find_path((96, 208), 1)
+            enemy.move()
+            if not randrange(50):
+                enemy.fire()
 
     def win(self):
         self.playing = False
@@ -171,6 +172,7 @@ class Game:
                     self.START_KEY = True
                 if event.key == pygame.K_BACKSPACE:
                     self.BACK_KEY = True
+                    self.playing = False
                 if event.key == pygame.K_DOWN:
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
