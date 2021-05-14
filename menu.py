@@ -329,7 +329,7 @@ class NextRoundMenu(Menu):
             self.game.draw_text('Victory', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 40)
             for i in range(len(self.game.level.players)):
                 for j in range(4):
-                    self.game.draw(self.enemies[j])
+                    self.game.background.blit(self.enemies[j].image, self.enemies[j].rect.topleft)
                     if self.game.level.players[i].score[j] == 0:
                         self.game.draw_text("O", 15, self.game.DISPLAY_W / 2 - 50 + 100 * i,
                                             self.game.DISPLAY_H / 2 + 20 * j)
