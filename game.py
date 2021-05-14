@@ -187,7 +187,7 @@ class Game:
                         player.pressed_keys[player.controls[event.key]] = True
                     if event.key == K_SPACE and player.number == 0:
                         player.fire()
-                    if event.key == K_LALT and player.number == 1:
+                    if event.key == K_RCTRL and player.number == 1:
                         player.fire()
                     if event.key == K_F9:
                         for enemy in self.level.enemies[:]:
