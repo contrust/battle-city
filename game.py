@@ -143,21 +143,21 @@ class Game:
 
     def win(self):
         self.playing = False
-        pygame.mixer.music.load('sounds/win_game.mp3')
+        pygame.mixer.music.load('sounds/win_game.ogg')
         pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.credits
 
     def go_to_next_round(self):
         self.playing = False
-        pygame.mixer.music.load('sounds/next_level.mp3')
+        pygame.mixer.music.load('sounds/next_level.ogg')
         pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.next_round_menu
 
     def game_over(self):
         self.playing = False
-        pygame.mixer.music.load('sounds/game_over.mp3')
+        pygame.mixer.music.load('sounds/game_over.ogg')
         pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.game_over_menu

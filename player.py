@@ -78,7 +78,7 @@ class Player(Tank):
         self.direction = DIRECTION_UP
 
     def die(self):
-        pygame.mixer.music.load('sounds/tank_explosion.mp3')
+        pygame.mixer.music.load('sounds/tank_explosion.ogg')
         pygame.mixer.music.set_volume(self.level.volume_level)
         pygame.mixer.music.play()
         self.level.explosions.append(Explosion(self.rect.topleft, 1))
