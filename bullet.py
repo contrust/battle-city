@@ -1,7 +1,7 @@
 from sprites import BULLET_IMAGES
 import pygame
 from globals import DISPLAY, get_hit_list
-from tile import BRICK, GRASS, BETON
+from tile import BRICK, GRASS, BETON, WATER
 from explosion import Explosion
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 
@@ -36,8 +36,10 @@ class Bullet:
                     self.level.kill_tile(tile)
                 if tile.type == BETON and self.kind == 1:
                     self.level.kill_tile(tile)
-                if tile.type != GRASS:
+                if tile.type not in {GRASS, WATER}:
                     self.die()
+                elif tile.type in {WATER}:
+                    self.level.game.draw(self)
             if self.owner.role == 0:
                 for enemy in get_hit_list(self.rect, self.level.enemies):
                     enemy.health -= 1
