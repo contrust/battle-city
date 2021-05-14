@@ -4,7 +4,6 @@ from level import Level
 from enemy import Enemy
 
 players_count = 1
-screen_offset = 16
 
 
 class Menu:
@@ -22,9 +21,8 @@ class Menu:
         self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
-        self.game.background.fill(self.game.BLACK)
         self.game.window.blit(self.game.background, (0, 0))
-        self.game.window.blit(self.game.small_display, (screen_offset, 0))
+        self.game.background.fill(self.game.BLACK)
         pygame.display.update()
         self.game.reset_keys()
 
@@ -232,7 +230,6 @@ class OptionsMenu(Menu):
             self.blit_screen()
 
     def check_input(self):
-        global screen_offset
         if self.game.BACK_KEY:
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
@@ -254,7 +251,6 @@ class OptionsMenu(Menu):
                     self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H),
                                                                pygame.SCALED | pygame.FULLSCREEN)
                     self.game.toggle_fullscreen = True
-                screen_offset = 0
         if self.state == 'Volume':
             if self.game.RIGHT_KEY:
                 self.game.volume_level = round(self.game.volume_level + 0.1, 1)

@@ -13,10 +13,10 @@ class Game:
             self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
         pygame.init()
         pygame.display.set_caption('Battle City')
-        self.DISPLAY_W, self.DISPLAY_H = 208, 224
-        self.small_display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        self.background = pygame.Surface((self.DISPLAY_W + 32, self.DISPLAY_H))
-        self.window = pygame.display.set_mode((self.DISPLAY_W + 32, self.DISPLAY_H), SCALED | FULLSCREEN)
+        self.DISPLAY_W, self.DISPLAY_H = 240, 224
+        self.small_display = pygame.Surface((self.DISPLAY_W-32, self.DISPLAY_H))
+        self.background = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+        self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), SCALED | FULLSCREEN)
         self.volume_level = 0.3
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
@@ -222,4 +222,4 @@ class Game:
         text_surface = font.render(text, True, self.WHITE)
         text_rect = text_surface.get_rect()
         text_rect.center = (x, y)
-        self.small_display.blit(text_surface, text_rect)
+        self.background.blit(text_surface, text_rect)
