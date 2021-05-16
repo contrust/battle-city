@@ -31,6 +31,7 @@ class Game:
         self.next_round_menu = NextRoundMenu(self)
         self.game_over_menu = GameOverMenu(self)
         self.CLOCK = pygame.time.Clock()
+        self.cheat_command = ""
 
     def draw(self, entity):
         self.small_display.blit(entity.image, entity.rect.topleft)
@@ -189,18 +190,26 @@ class Game:
                         player.fire()
                     if event.key == K_RCTRL and player.number == 1:
                         player.fire()
-                    if event.key == K_F9:
+                    if event.key in range(97, 123):
+                        self.cheat_command += chr(event.key)
+                    if len(self.cheat_command) == 8:
+                        self.cheat_command = self.cheat_command[1:]
+                    if self.cheat_command == "killfoe":
                         for enemy in self.level.enemies[:]:
                             self.level.players[0].score[enemy.kind] += 1
                             enemy.die()
-                    if event.key == K_F10:
+                        self.cheat_command = ""
+                    if self.cheat_command == "improve":
                         if player.kind != 3:
                             player.kind += 1
                             player.get_type()
-                    if event.key == K_F11:
+                        self.cheat_command = ""
+                    if self.cheat_command == "protect":
                         for protecting_block in self.level.protecting_blocks:
                             self.level.map.append(Tile(BETON, protecting_block))
-                    if event.key == K_F12 and self.curr_menu != self.next_round_menu:
+                        self.cheat_command = ""
+                    if self.cheat_command == "nextlvl" and self.curr_menu != self.next_round_menu:
+                        self.cheat_command = ""
                         if self.level.number == 5:
                             self.win()
                         else:
