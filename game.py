@@ -16,7 +16,7 @@ class Game:
         self.DISPLAY_W, self.DISPLAY_H = 240, 224
         self.small_display = pygame.Surface((self.DISPLAY_W-32, self.DISPLAY_H))
         self.background = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), SCALED | FULLSCREEN | NOFRAME)
+        self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), SCALED | FULLSCREEN | NOFRAME | DOUBLEBUF | HWSURFACE)
         self.volume_level = 0.3
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
