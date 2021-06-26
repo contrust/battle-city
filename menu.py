@@ -245,11 +245,11 @@ class OptionsMenu(Menu):
                 if self.game.toggle_fullscreen:
                     for x in range(2):
                         self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H),
-                                                                   pygame.SCALED | pygame.RESIZABLE)
+                                                                   pygame.SCALED)
                     self.game.toggle_fullscreen = False
                 else:
                     self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H),
-                                                               pygame.SCALED | pygame.FULLSCREEN)
+                                                               pygame.SCALED | pygame.FULLSCREEN | pygame.NOFRAME)
                     self.game.toggle_fullscreen = True
         if self.state == 'Volume':
             if self.game.RIGHT_KEY:
