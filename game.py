@@ -171,7 +171,7 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.START_KEY = True
-                if event.key == pygame.K_BACKSPACE:
+                if event.key == pygame.K_ESCAPE:
                     self.BACK_KEY = True
                     self.playing = False
                 if event.key == pygame.K_DOWN:
