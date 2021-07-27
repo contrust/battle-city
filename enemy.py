@@ -24,6 +24,53 @@ def get_point(path_point):
     return a[::-1]
 
 
+def find_path(path_point, target, rect, game_map, protecting_blocks):
+    path = []
+    start_point = Node(rect.topleft)
+    point = (rect.x - rect.x % 8,
+             rect.y - rect.y % 8)
+    path_point = (path_point[0] - path_point[0] % 8,
+                  path_point[1] - path_point[1] % 8)
+    rect = pygame.Rect(rect.x, rect.y, 16, 16)
+    paths = {point: Node(point, start_point)}
+    points = Queue()
+    points.put(point)
+    while not points.empty():
+        point = points.get()
+        if (0 <= point[0] <= DISPLAY.get_width() - 16 and
+           0 <= point[1] <= DISPLAY.get_height() - 16):
+            for dx in range(-8, 16, 8):
+                for dy in range(-8, 16, 8):
+                    moved_point = (point[0] + dx, point[1] + dy)
+                    rect.x, rect.y = moved_point
+                    if dx != 0 and dy != 0 or moved_point in paths.keys():
+                        continue
+                    if target == 0:
+                        for entity in get_hit_list(rect, game_map):
+                            if entity.type != GRASS:
+                                break
+                        else:
+                            points.put(moved_point)
+                            paths[moved_point] = (
+                                Node(moved_point, paths[point]))
+                            if path_point == moved_point:
+                                path = (
+                                    get_point(paths[path_point]))
+                    if target == 1:
+                        for entity in get_hit_list(rect, game_map):
+                            if (entity.type != GRASS and
+                               entity.rect.topleft not in protecting_blocks):
+                                break
+                        else:
+                            points.put(moved_point)
+                            paths[moved_point] = (
+                               Node(moved_point, paths[point]))
+                            if path_point == moved_point:
+                                path = (
+                                   get_point(paths[path_point]))
+    return path
+
+
 class Enemy(Tank):
     def __init__(self, kind, speed=2, direction=DIRECTION_UP,
                  position=(50, 50), target=0, level=None):
@@ -90,65 +137,18 @@ class Enemy(Tank):
                     live_players.append(player.number)
             if target == 0:
                 if target in live_players:
-                    self.find_path(self.level.players[0].rect.topleft, 0)
+                    self.path = find_path(self.level.players[0].rect.topleft, 0, self.rect, self.level.map, self.level.protecting_blocks)
                 elif len(self.level.players) > 1:
-                    self.find_path(self.level.players[1].rect.topleft, 0)
+                    self.path = find_path(self.level.players[1].rect.topleft, 0, self.rect, self.level.map, self.level.protecting_blocks)
             if target == 1:
                 if target in live_players and len(self.level.players) > 1:
-                    self.find_path(self.level.players[1].rect.topleft, 0)
+                    self.path = find_path(self.level.players[1].rect.topleft, 0, self.rect, self.level.map, self.level.protecting_blocks)
                 else:
-                    self.find_path(self.level.players[0].rect.topleft, 0)
+                    self.path = find_path(self.level.players[0].rect.topleft, 0, self.rect, self.level.map, self.level.protecting_blocks)
             if target == 2:
-                self.find_path((96, 208), 1)
-
-    def find_path(self, path_point, target):
-        self.path = []
-        start_point = Node(self.rect.topleft)
-        point = (self.rect.x - self.rect.x % 8,
-                 self.rect.y - self.rect.y % 8)
-        path_point = (path_point[0] - path_point[0] % 8,
-                      path_point[1] - path_point[1] % 8)
-        rect = pygame.Rect(self.rect.x, self.rect.y, 16, 16)
-        paths = {point: Node(point, start_point)}
-        points = Queue()
-        points.put(point)
-        while not points.empty():
-            point = points.get()
-            if (0 <= point[0] <= DISPLAY.get_width() - 16 and
-               0 <= point[1] <= DISPLAY.get_height() - 16):
-                for dx in range(-8, 16, 8):
-                    for dy in range(-8, 16, 8):
-                        moved_point = (point[0] + dx, point[1] + dy)
-                        rect.x, rect.y = moved_point
-                        if dx != 0 and dy != 0 or moved_point in paths.keys():
-                            continue
-                        if target == 0:
-                            for entity in get_hit_list(rect, self.level.map):
-                                if entity.type != GRASS:
-                                    break
-                            else:
-                                points.put(moved_point)
-                                paths[moved_point] = (
-                                    Node(moved_point, paths[point]))
-                                if path_point == moved_point:
-                                    self.path = (
-                                        get_point(paths[path_point]))
-                                    self.is_moving_to_target = True
-                                    return
-                        if target == 1:
-                            for entity in get_hit_list(rect, self.level.map):
-                                if (entity.type != GRASS and
-                                   entity.rect.topleft not in self.level.protecting_blocks):
-                                    break
-                            else:
-                                points.put(moved_point)
-                                paths[moved_point] = (
-                                   Node(moved_point, paths[point]))
-                                if path_point == moved_point:
-                                    self.path = (
-                                       get_point(paths[path_point]))
-                                    self.is_moving_to_target = True
-                                    return
+                self.path = find_path((96, 208), 1, self.rect, self.level.map, self.level.protecting_blocks)
+            if self.path:
+                self.is_moving_to_target = True
 
     def die(self):
         pygame.mixer.music.load('sounds/tank_explosion.ogg')
