@@ -1,6 +1,8 @@
 from menu import *
 from pygame.locals import *
 from random import randrange
+
+from sprites import HEART
 from tile import Tile, BETON
 from enemy import Enemy
 from level import Level
@@ -54,13 +56,15 @@ class Game:
                     self.process_player_death(1)
             for player in self.level.players:
                 self.draw(player)
+                for i in range(player.lifes):
+                    self.background.blit(HEART, (224 if player.number else 0, i * 16))
                 player.move()
             if not randrange(250):
                 self.create_random_enemy()
             self.update_enemies()
             for bullet in self.level.bullets:
                 self.draw(bullet)
-            for tile in self.level.map:
+            for tile in self.level.game_map:
                 self.draw(tile)
             for bonus in self.level.bonuses:
                 self.draw(bonus)
@@ -206,7 +210,7 @@ class Game:
                         self.cheat_command = ""
                     if self.cheat_command == "protect":
                         for protecting_block in self.level.protecting_blocks:
-                            self.level.map.append(Tile(BETON, protecting_block))
+                            self.level.game_map.append(Tile(BETON, protecting_block))
                         self.cheat_command = ""
                     if self.cheat_command == "nextlvl" and self.curr_menu != self.next_round_menu:
                         self.cheat_command = ""

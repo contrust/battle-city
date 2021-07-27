@@ -10,6 +10,7 @@ BULLET_IMAGES = [SPRITES.subsurface((322, 102, 4, 4)),
                  SPRITES.subsurface((338, 102, 4, 4)),
                  SPRITES.subsurface((346, 102, 4, 4)),
                  SPRITES.subsurface((330, 102, 4, 4))]
+HEART = pygame.image.load('heart.png').convert_alpha()
 TANKS_IMAGES = [[], []]
 for i in range(2):
     for j in range(4):

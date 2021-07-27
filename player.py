@@ -38,7 +38,7 @@ class Player(Tank):
                 self.get_type()
         if bonus.type == SHOVEL:
             for protecting_block in self.level.protecting_blocks:
-                self.level.map.append(Tile(BETON, protecting_block))
+                self.level.game_map.append(Tile(BETON, protecting_block))
         if bonus.type == TANK_BONUS:
             if self.lifes < self.max_lifes:
                 self.lifes += 1
@@ -59,7 +59,7 @@ class Player(Tank):
         if self.moving_state:
             self.make_step()
             self.return_on_map()
-            for tile in get_hit_list(self.rect, self.level.map):
+            for tile in get_hit_list(self.rect, self.level.game_map):
                 if tile.type != GRASS:
                     self.align_static_collision(tile)
             for _ in get_hit_list(self.rect, self.level.enemies):

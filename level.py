@@ -6,27 +6,32 @@ from tile import Tile, BRICK, BETON
 from globals import DISPLAY
 
 
+def get_game_map(number):
+    game_map = []
+    with open(f'maps/{number}.txt', 'r') as f:
+        y = 0
+        for line in f:
+            line = line.strip()
+            for x in range(len(line)):
+                if line[x] != '.':
+                    tile_type = int(line[x])
+                    if tile_type == BRICK or tile_type == BETON:
+                        for i in range(4):
+                            game_map.append(Tile(tile_type,
+                                                 (x * 16 + 8 * (i % 2),
+                                                  y * 16 + 8 * (i // 2))))
+                    else:
+                        game_map.append(Tile(tile_type, (x * 16, y * 16)))
+            y += 1
+    return game_map
+
+
 class Level:
     def __init__(self, number, count, game, players=None):
-        self.map = []
+        self.game_map = get_game_map(number)
         self.number = number
         self.game = game
         self.volume_level = self.game.volume_level
-        with open(f'maps/{number}.txt', 'r') as f:
-            y = 0
-            for line in f:
-                line = line.strip()
-                for x in range(len(line)):
-                    if line[x] != '.':
-                        tile_type = int(line[x])
-                        if tile_type == BRICK or tile_type == BETON:
-                            for i in range(4):
-                                self.map.append(Tile(tile_type,
-                                                     (x * 16 + 8 * (i % 2),
-                                                      y * 16 + 8 * (i // 2))))
-                        else:
-                            self.map.append(Tile(tile_type, (x * 16, y * 16)))
-                y += 1
         self.protecting_blocks = (
             (88, 200),
             (88, 208),
@@ -37,7 +42,7 @@ class Level:
             (112, 208),
             (112, 216))
         for protecting_block in self.protecting_blocks:
-            self.map.append(Tile(BRICK, protecting_block))
+            self.game_map.append(Tile(BRICK, protecting_block))
         if not players and count == 1:
             self.players = [Player(0, 0, 3 / 4, 0, (64, 208), self)]
         elif count == 1:
@@ -69,7 +74,7 @@ class Level:
         return sum((sum(player.score) for player in self.players))
 
     def kill_tile(self, tile):
-        self.map.remove(tile)
+        self.game_map.remove(tile)
 
     def kill_player(self, player):
         self.players.remove(player)

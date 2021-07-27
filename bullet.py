@@ -31,7 +31,7 @@ class Bullet:
             if self.direction == DIRECTION_DOWN:
                 self.y += self.speed
             self.rect.topleft = round(self.x), round(self.y)
-            for tile in get_hit_list(self.rect, self.level.map):
+            for tile in get_hit_list(self.rect, self.level.game_map):
                 if tile.type == BRICK:
                     self.level.kill_tile(tile)
                 if tile.type == BETON and self.kind == 1:
