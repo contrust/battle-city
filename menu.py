@@ -1,3 +1,5 @@
+import json
+
 import pygame
 import sys
 from level import Level
@@ -40,6 +42,9 @@ class MainMenu(Menu):
 
     def display_menu(self):
         self.run_display = True
+        if not self.game.toggle_fullscreen:
+            self.game.window = pygame.display.set_mode((self.game.DISPLAY_W, self.game.DISPLAY_H),
+                                                       pygame.SCALED | pygame.DOUBLEBUF)
         while self.run_display:
             self.game.check_events()
             self.check_input()
@@ -102,6 +107,12 @@ class MainMenu(Menu):
             elif self.state == 'Credits':
                 self.game.curr_menu = self.game.credits
             elif self.state == 'Exit':
+                with open('settings.txt', mode='w') as file:
+                    json.dump({
+                        'toggle_fullscreen': self.game.toggle_fullscreen,
+                        'unlocked_levels': self.game.unlocked_levels,
+                        'volume_level': self.game.volume_level
+                    }, file, indent=4)
                 pygame.quit()
                 sys.exit()
             self.run_display = False
