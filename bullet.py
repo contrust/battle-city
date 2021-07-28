@@ -1,8 +1,10 @@
-from sprites import BULLET_IMAGES
 import pygame
-from globals import DISPLAY, get_hit_list
-from tile import BRICK, GRASS, BETON, WATER
+
 from explosion import Explosion
+from globals import DISPLAY, get_hit_list
+from sprites import BULLET_IMAGES
+from tile import BRICK, GRASS, BETON, WATER
+
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 
 
@@ -21,7 +23,8 @@ class Bullet:
 
     def fly(self):
         if (0 < self.rect.x < DISPLAY.get_width() - self.image.get_width() and
-           0 < self.rect.y < DISPLAY.get_height() - self.image.get_height()):
+                (0 < self.rect.y < DISPLAY.get_height() -
+                 self.image.get_height())):
             if self.direction == DIRECTION_LEFT:
                 self.x -= self.speed
             if self.direction == DIRECTION_RIGHT:

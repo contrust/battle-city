@@ -1,6 +1,4 @@
 import pygame
-pygame.init()
-pygame.display.set_caption('Battle City')
 DISPLAY_W, DISPLAY_H = 480, 270
 display = pygame.Surface((DISPLAY_W, DISPLAY_H))
 window = pygame.display.set_mode((DISPLAY_W, DISPLAY_H))
