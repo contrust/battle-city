@@ -1,13 +1,15 @@
+from queue import Queue
+from random import randrange
+
 import pygame
+
+from explosion import Explosion
+from globals import DISPLAY
 from globals import get_hit_list
+from sprites import TANKS_IMAGES
 from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
                   DIRECTION_RIGHT, DIRECTION_LEFT)
-from sprites import TANKS_IMAGES
-from random import randrange
-from queue import Queue
-from globals import DISPLAY
 from tile import GRASS
-from explosion import Explosion
 
 
 class Node:
@@ -38,7 +40,7 @@ def find_path(path_point, target, rect, game_map, protecting_blocks):
     while not points.empty():
         point = points.get()
         if (0 <= point[0] <= DISPLAY.get_width() - 16 and
-           0 <= point[1] <= DISPLAY.get_height() - 16):
+                0 <= point[1] <= DISPLAY.get_height() - 16):
             for dx in range(-8, 16, 8):
                 for dy in range(-8, 16, 8):
                     moved_point = (point[0] + dx, point[1] + dy)
@@ -59,15 +61,16 @@ def find_path(path_point, target, rect, game_map, protecting_blocks):
                     if target == 1:
                         for entity in get_hit_list(rect, game_map):
                             if (entity.type != GRASS and
-                               entity.rect.topleft not in protecting_blocks):
+                                    (entity.rect.topleft not in
+                                     protecting_blocks)):
                                 break
                         else:
                             points.put(moved_point)
                             paths[moved_point] = (
-                               Node(moved_point, paths[point]))
+                                Node(moved_point, paths[point]))
                             if path_point == moved_point:
                                 path = (
-                                   get_point(paths[path_point]))
+                                    get_point(paths[path_point]))
     return path
 
 
@@ -105,7 +108,7 @@ class Enemy(Tank):
             if enemy != self:
                 self.is_moving_to_target = False
                 if (self.direction == 2 * (enemy.direction // 2) +
-                   (enemy.direction + 1) % 2):
+                        (enemy.direction + 1) % 2):
                     self.turn_back()
                 else:
                     self.align_static_collision(enemy)
@@ -149,7 +152,8 @@ class Enemy(Tank):
                 self.find_path((96, 208), 1)
 
     def find_path(self, path_point, target):
-        self.path = find_path(path_point, target, self.rect, self.level.game_map, self.level.protecting_blocks)
+        self.path = find_path(path_point, target, self.rect,
+                              self.level.game_map, self.level.protecting_blocks)
         if self.path:
             self.is_moving_to_target = True
 

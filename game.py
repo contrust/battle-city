@@ -1,30 +1,34 @@
-from menu import *
-from pygame.locals import *
 from random import randrange
 
+from pygame.locals import *
+
+from menu import *
 from sprites import HEART
 from tile import Tile, BETON
-from enemy import Enemy
-from level import Level
 
 
 class Game:
     def __init__(self):
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, \
-            self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
+            self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = (
+                False, False, False, False, False, False)
         pygame.init()
         pygame.display.set_caption('Battle City')
         self.DISPLAY_W, self.DISPLAY_H = 240, 224
-        self.small_display = pygame.Surface((self.DISPLAY_W-32, self.DISPLAY_H))
+        self.small_display = pygame.Surface(
+            (self.DISPLAY_W - 32, self.DISPLAY_H))
         self.background = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), SCALED | FULLSCREEN | NOFRAME | DOUBLEBUF | HWSURFACE)
+        self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H),
+                                              SCALED)
         self.volume_level = 0.3
         self.level = Level(1, 1, self)
         self.unlocked_levels = 1
         self.toggle_fullscreen = True
         self.font_name = '8-BIT WONDER.TTF'
-        self.BLACK, self.WHITE, self.GRAY = (0, 0, 0), (255, 255, 255), (60, 60, 60)
+        self.BLACK, self.WHITE, self.GRAY = (0, 0, 0), \
+                                            (255, 255, 255), \
+                                            (60, 60, 60)
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
@@ -57,7 +61,8 @@ class Game:
             for player in self.level.players:
                 self.draw(player)
                 for i in range(player.lifes):
-                    self.background.blit(HEART, (224 if player.number else 0, i * 16))
+                    self.background.blit(HEART,
+                                         (224 if player.number else 0, i * 16))
                 player.move()
             if not randrange(250):
                 self.create_random_enemy()
@@ -100,13 +105,16 @@ class Game:
                 rnd = randrange(0, 2)
                 if rnd == 0:
                     self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                    (96 * randrange(3), 0), 0, self.level))
+                                                    (96 * randrange(3), 0), 0,
+                                                    self.level))
                 if rnd == 1:
                     self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                    (96 * randrange(3), 0), 1, self.level))
+                                                    (96 * randrange(3), 0), 1,
+                                                    self.level))
             else:
                 self.level.enemies.append(Enemy(randrange(4), 1 / 2, 0,
-                                                (96 * randrange(3), 0), 2, self.level))
+                                                (96 * randrange(3), 0), 2,
+                                                self.level))
 
     def update_explosions(self):
         for explosion in self.level.explosions:
@@ -136,7 +144,8 @@ class Game:
                     elif len(self.level.players) > 1:
                         enemy.find_path(self.level.players[1].rect.topleft, 0)
                 if enemy.target == 1:
-                    if enemy.target in live_players and len(self.level.players) > 1:
+                    if enemy.target in live_players and len(
+                            self.level.players) > 1:
                         enemy.find_path(self.level.players[1].rect.topleft, 0)
                     else:
                         enemy.find_path(self.level.players[0].rect.topleft, 0)
@@ -170,6 +179,15 @@ class Game:
     def check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                with open('settings.txt', mode='w') as file:
+                    json.dump({
+                        'toggle_fullscreen': self.toggle_fullscreen,
+                        'unlocked_levels': self.unlocked_levels,
+                        'volume_level': self.volume_level
+                    }, file, indent=4)
+                self.window = pygame.display.set_mode(
+                    (self.DISPLAY_W, self.DISPLAY_H),
+                    pygame.SCALED)
                 self.running, self.playing = False, False
                 self.curr_menu.run_display = False
             if event.type == pygame.KEYDOWN:
@@ -196,6 +214,8 @@ class Game:
                         player.fire()
                     if event.key in range(97, 123):
                         self.cheat_command += chr(event.key)
+                    else:
+                        self.cheat_command = ""
                     if len(self.cheat_command) == 8:
                         self.cheat_command = self.cheat_command[1:]
                     if self.cheat_command == "killfoe":
@@ -210,9 +230,11 @@ class Game:
                         self.cheat_command = ""
                     if self.cheat_command == "protect":
                         for protecting_block in self.level.protecting_blocks:
-                            self.level.game_map.append(Tile(BETON, protecting_block))
+                            self.level.game_map.append(
+                                Tile(BETON, protecting_block))
                         self.cheat_command = ""
-                    if self.cheat_command == "nextlvl" and self.curr_menu != self.next_round_menu:
+                    if (self.cheat_command == "nextlvl" and
+                            self.curr_menu != self.next_round_menu):
                         self.cheat_command = ""
                         if self.level.number == 5:
                             self.win()
@@ -227,8 +249,9 @@ class Game:
                         player.pressed_keys[player.controls[event.key]] = False
 
     def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, \
-            self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = False, False, False, False, False, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY,\
+            self.BACK_KEY, self.RIGHT_KEY, self.LEFT_KEY = (
+                False, False, False, False, False, False)
 
     def draw_text(self, text, size, x, y):
         font = pygame.font.Font(self.font_name, size)
