@@ -1,4 +1,7 @@
 import pytest
+from level import get_game_map
+from enemy import find_path
+from pygame.rect import Rect
     
 def test_find_path():
     game_map = get_game_map(1)
