@@ -1,4 +1,4 @@
-from sprites import BOLD_SPRITES
+from battle_city.sprites import BOLD_SPRITES
 import pygame
 
 

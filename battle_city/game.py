@@ -2,9 +2,9 @@ from random import randrange
 
 from pygame.locals import *
 
-from menu import *
-from sprites import HEART
-from tile import Tile, BETON
+from battle_city.menu import *
+from battle_city.sprites import HEART
+from battle_city.tile import Tile, BETON
 
 
 class Game:
@@ -157,21 +157,21 @@ class Game:
 
     def win(self):
         self.playing = False
-        pygame.mixer.music.load('sounds/win_game.ogg')
+        pygame.mixer.music.load('../sounds/win_game.ogg')
         pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.credits
 
     def go_to_next_round(self):
         self.playing = False
-        pygame.mixer.music.load('sounds/next_level.ogg')
+        pygame.mixer.music.load('../sounds/next_level.ogg')
         pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.next_round_menu
 
     def game_over(self):
         self.playing = False
-        pygame.mixer.music.load('sounds/game_over.ogg')
+        pygame.mixer.music.load('../sounds/game_over.ogg')
         pygame.mixer.music.set_volume(self.volume_level)
         pygame.mixer.music.play()
         self.curr_menu = self.game_over_menu

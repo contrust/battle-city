@@ -1,9 +1,9 @@
 import pygame
 
-from explosion import Explosion
-from globals import DISPLAY, get_hit_list
-from sprites import BULLET_IMAGES
-from tile import BRICK, GRASS, BETON, WATER
+from battle_city.explosion import Explosion
+from battle_city.globals import DISPLAY, get_hit_list
+from battle_city.sprites import BULLET_IMAGES
+from battle_city.tile import BRICK, GRASS, BETON, WATER
 
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 

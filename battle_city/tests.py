@@ -1,6 +1,6 @@
 import unittest
-from level import get_game_map
-from enemy import find_path
+from battle_city.level import get_game_map
+from battle_city.enemy import find_path
 from pygame.rect import Rect
 
 

@@ -1,13 +1,13 @@
 import pygame
 from pygame.locals import *
 
-from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
-                  DIRECTION_RIGHT, DIRECTION_LEFT)
-from globals import get_hit_list
-from sprites import TANKS_IMAGES
-from bonus import SHOVEL, STAR, GRENADE, TANK_BONUS
-from tile import Tile, GRASS, BETON
-from explosion import Explosion
+from battle_city.bonus import SHOVEL, STAR, GRENADE, TANK_BONUS
+from battle_city.explosion import Explosion
+from battle_city.globals import get_hit_list
+from battle_city.sprites import TANKS_IMAGES
+from battle_city.tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
+                              DIRECTION_RIGHT, DIRECTION_LEFT)
+from battle_city.tile import Tile, GRASS, BETON
 
 
 class Player(Tank):
@@ -65,8 +65,10 @@ class Player(Tank):
             for _ in get_hit_list(self.rect, self.level.enemies):
                 self.align_dynamic_collision()
             if len(self.level.players) == 2:
-                if self.rect.colliderect(self.level.players[(self.number + 1) % 2]):
-                    self.align_static_collision(self.level.players[(self.number + 1) % 2])
+                if self.rect.colliderect(
+                        self.level.players[(self.number + 1) % 2]):
+                    self.align_static_collision(
+                        self.level.players[(self.number + 1) % 2])
             for bonus in get_hit_list(self.rect, self.level.bonuses):
                 self.collide_with_bonus(bonus)
             for castle in get_hit_list(self.rect, [self.level.castle]):
@@ -78,7 +80,7 @@ class Player(Tank):
         self.direction = DIRECTION_UP
 
     def die(self):
-        pygame.mixer.music.load('sounds/tank_explosion.ogg')
+        pygame.mixer.music.load('../sounds/tank_explosion.ogg')
         pygame.mixer.music.set_volume(self.level.volume_level)
         pygame.mixer.music.play()
         self.level.explosions.append(Explosion(self.rect.topleft, 1))

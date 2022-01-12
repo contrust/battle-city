@@ -3,13 +3,13 @@ from random import randrange
 
 import pygame
 
-from explosion import Explosion
-from globals import DISPLAY
-from globals import get_hit_list
-from sprites import TANKS_IMAGES
-from tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
-                  DIRECTION_RIGHT, DIRECTION_LEFT)
-from tile import GRASS
+from battle_city.explosion import Explosion
+from battle_city.globals import DISPLAY
+from battle_city.globals import get_hit_list
+from battle_city.sprites import TANKS_IMAGES
+from battle_city.tank import (Tank, DIRECTION_UP, DIRECTION_DOWN,
+                              DIRECTION_RIGHT, DIRECTION_LEFT)
+from battle_city.tile import GRASS
 
 
 class Node:
@@ -158,7 +158,7 @@ class Enemy(Tank):
             self.is_moving_to_target = True
 
     def die(self):
-        pygame.mixer.music.load('sounds/tank_explosion.ogg')
+        pygame.mixer.music.load('../sounds/tank_explosion.ogg')
         pygame.mixer.music.set_volume(self.level.volume_level)
         pygame.mixer.music.play()
         self.level.explosions.append(Explosion(self.rect.topleft, 1))

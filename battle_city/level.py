@@ -1,9 +1,9 @@
-from player import Player
-from bonus import Bonus
-from castle import *
+from battle_city.player import Player
+from battle_city.bonus import Bonus
+from battle_city.castle import *
 from random import randrange
-from tile import Tile, BRICK, BETON
-from globals import DISPLAY
+from battle_city.tile import Tile, BRICK, BETON
+from battle_city.globals import DISPLAY
 
 
 def get_game_map(number):

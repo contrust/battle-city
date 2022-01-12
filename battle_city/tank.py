@@ -1,7 +1,7 @@
 import pygame
-from sprites import TANKS_IMAGES
-from globals import DISPLAY
-from bullet import Bullet
+from battle_city.sprites import TANKS_IMAGES
+from battle_city.globals import DISPLAY
+from battle_city.bullet import Bullet
 (BASIC, FAST, RAPID, ARMORED) = range(4)
 (DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT) = range(4)
 
@@ -46,7 +46,7 @@ class Tank:
 
     def fire(self):
         if self.max_bullets >= self.current_bullets > 0:
-            pygame.mixer.music.load('sounds/shot.ogg')
+            pygame.mixer.music.load('../sounds/shot.ogg')
             pygame.mixer.music.set_volume(self.level.volume_level)
             pygame.mixer.music.play()
             if self.direction == DIRECTION_UP:

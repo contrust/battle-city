@@ -3,8 +3,8 @@ import sys
 
 import pygame
 
-from enemy import Enemy
-from level import Level
+from battle_city.enemy import Enemy
+from battle_city.level import Level
 
 players_count = 1
 
@@ -17,7 +17,7 @@ class Menu:
         self.run_display = True
         self.cursor_rect = pygame.Rect(0, 0, 20, 20)
         self.offset = - 75
-        pygame.mixer.music.load('sounds/main_theme.ogg')
+        pygame.mixer.music.load('../sounds/main_theme.ogg')
         pygame.mixer.music.set_volume(self.game.volume_level)
         pygame.mixer.music.play()
 

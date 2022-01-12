@@ -1,5 +1,5 @@
 import pygame
-from sprites import BOLD_SPRITES
+from battle_city.sprites import BOLD_SPRITES
 (BRICK, GRASS, BETON, ICE, WATER) = range(5)
 
 
